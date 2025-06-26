@@ -1,0 +1,45 @@
+<app-header
+  [viewMode]="viewMode"
+  [mesAtual]="mesAtual"
+  [anoAtual]="anoAtual"
+  (changeView)="mudarVisao($event)"
+  (previous)="viewMode === 'semana' ? goToPreviousWeek() : goToPreviousMonth()"
+  (current)="viewMode === 'semana' ? goToCurrentWeek() : goToCurrentMonth()"
+  (next)="viewMode === 'semana' ? goToNextWeek() : goToNextMonth()"
+>
+</app-header>
+<ng-container *ngIf="viewMode === 'semana'">
+  <app-visualizacao-semanal
+    #semanaComponent
+    [eventos]="eventos"
+    [mesAtual]="mesAtual"
+    [anoAtual]="anoAtual"
+    [desabilitarAdicionarEvento]="desabilitarAdicionarEvento"
+    [desabilitarIrParaProximoMes]="desabilitarIrParaProximoMes"
+    [desabilitarIrParaMesAnterior]="desabilitarIrParaMesAnterior"
+    [periodoDia]="configPeriodoDiaSemana"
+    [acoesEvento]="acoesEvento"
+    [periodoMarcadoParaEventos]="periodoMarcadoParaEventos"
+    (cliqueAdicionarEvento)="cliqueAdicionarEvento.next($event)"
+    (cliqueVisualizarEvento)="cliqueVisualizarEvento.next($event)"
+    (mesMudou)="atualizarMes($event)"
+  >
+  </app-visualizacao-semanal>
+</ng-container>
+<ng-container *ngIf="viewMode === 'mes'">
+  <app-visualizacao-mensal
+    #mesComponent
+    [eventos]="eventos"
+    [mesAtual]="mesAtual"
+    [anoAtual]="anoAtual"
+    [dataInicial]="periodoMarcadoParaEventos?.dataInicial"
+    [desabilitarAdicionarEvento]="desabilitarAdicionarEvento"
+    [desabilitarIrParaProximoMes]="desabilitarIrParaProximoMes"
+    [desabilitarIrParaMesAnterior]="desabilitarIrParaMesAnterior"
+    [acoesEvento]="acoesEvento"
+    [periodoMarcadoParaEventos]="periodoMarcadoParaEventos"
+    (cliqueAdicionarEvento)="cliqueAdicionarEvento.next($event)"
+    (cliqueVisualizarEvento)="cliqueVisualizarEvento.next($event)"
+    (mesMudou)="atualizarMes($event)"
+  ></app-visualizacao-mensal>
+</ng-container>

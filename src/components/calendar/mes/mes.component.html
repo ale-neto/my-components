@@ -1,0 +1,68 @@
+<div class="calendario" [ngClass]="{ 'modo-compacto': modoCompacto }">
+  <div class="dias-semana-calendario">
+    <div class="dia-semana" *ngFor="let diaDaSemana of diasDaSemana">
+      {{ diaDaSemana | uppercase }}
+    </div>
+  </div>
+
+  <div class="grade-calendario">
+    <div *ngFor="let dia of diasNoMes" class="dia-calendario">
+      <div class="cabecalho-dia">
+        <div
+          class="rotulo-dia"
+          [class.atual]="verificarMesmoDia(dia, diaAtual)"
+          [class.marcado]="verificarDiaMarcado(dia | date : 'yyyy-MM-dd')"
+        >
+          {{ dia | date : 'dd' }}
+        </div>
+
+        <ng-container *ngIf="!desabilitarAdicionarEvento">
+          <div class="soma" (click)="adicionarEvento(dia)"></div>
+        </ng-container>
+      </div>
+
+      <div class="eventos-calendario">
+        <div
+          *ngFor="let evento of obterEventosDoDia(dia) | slice : 0 : 3"
+          class="evento-calendario"
+          [ngStyle]="obterEstiloDoEvento(evento.cor)"
+          (click)="acoesEvento?.length ? abrirMenu($event, evento) : cliqueVisualizarEvento.emit(evento)"
+        >
+          <div class="texto-limitado">
+            <strong>{{ evento.titulo }}</strong>
+          </div>
+          <div>
+            <small>{{ evento.horaInicio }} - {{ evento.horaFim }}</small>
+          </div>
+        </div>
+
+        <div *ngIf="obterEventosDoDia(dia).length > 3" class="mais-eventos" (click)="alternarPopover(dia, $event)">
+          +{{ obterEventosDoDia(dia).length - 3 }}
+          <span *ngIf="!modoCompacto">eventos</span>
+        </div>
+
+        <div *ngIf="popoverAberto && diaSelecionado === dia" class="popover-personalizado">
+          <div
+            *ngFor="let evento of obterEventosDoDia(dia)"
+            class="evento-popover"
+            [ngStyle]="obterEstiloDoEvento(evento.cor)"
+            (click)="acoesEvento?.length ? abrirMenu($event, evento) : cliqueVisualizarEvento.emit(evento)"
+          >
+            <div>
+              <strong>{{ evento.titulo }}</strong>
+            </div>
+            <div>
+              <small>{{ evento.horaInicio }} - {{ evento.horaFim }}</small>
+            </div>
+          </div>
+          <button class="btn btn-primary" (click)="fecharPopover($event)">Fechar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div *ngIf="menuVisivel" class="menu-contexto" [ngStyle]="posicaoMenu" (mouseleave)="fecharMenu()">
+  <div class="item-acao" *ngFor="let acao of acoesEvento" (click)="executarAcao(acao.metodo)">
+    {{ acao.nome }}
+  </div>
+</div>
