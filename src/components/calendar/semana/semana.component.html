@@ -1,0 +1,48 @@
+<div class="visualizacao-semanal">
+  <div class="cabecalho">
+    <div class="coluna-horario"></div>
+    <div *ngFor="let dia of diasSemana" class="coluna-dia">
+      <div
+        class="mes"
+        [class.atual]="verificarMesmoDia(dia.data | date : 'yyyy-MM-dd')"
+        [class.marcado]="verificarDiaMarcado(dia.data | date : 'yyyy-MM-dd')"
+      >
+        {{ dia.data | date : 'EEE' | uppercase }}
+      </div>
+      <div
+        class="dia"
+        [class.atual]="verificarMesmoDia(dia.data | date : 'yyyy-MM-dd')"
+        [class.marcado]="verificarDiaMarcado(dia.data | date : 'yyyy-MM-dd')"
+      >
+        {{ dia.data | date : 'dd' }}
+      </div>
+    </div>
+  </div>
+
+  <div class="corpo">
+    <div class="coluna-horario">
+      <div *ngFor="let hora of horas" class="rotulo-horario">{{ hora }}</div>
+    </div>
+    <div *ngFor="let dia of diasSemana" class="coluna-dia">
+      <div class="grade-dia">
+        <div *ngFor="let hora of horas" class="intervalo-horario" (click)="adicionarEvento(dia.data, hora)"></div>
+
+        <div
+          *ngFor="let evento of dia.eventos"
+          class="evento"
+          [ngStyle]="obterEstiloEvento(evento)"
+          (click)="acoesEvento?.length ? abrirMenu($event, evento) : cliqueVisualizarEvento.emit(evento)"
+        >
+          <div class="titulo-evento texto-limitado">{{ evento.titulo }}</div>
+          <div class="horario-evento">{{ evento.horaInicio }} - {{ evento.horaFim }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="menuVisivel" class="menu-contexto" [ngStyle]="posicaoMenu" (mouseleave)="fecharMenu()">
+    <div class="item-acao" *ngFor="let acao of acoesEvento" (click)="executarAcao(acao.metodo)">
+      {{ acao.nome }}
+    </div>
+  </div>
+</div>
