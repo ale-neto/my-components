@@ -28,13 +28,13 @@ export class CalendarioComponent implements OnChanges, OnInit {
   @Input() desabilitarAdicionarEvento = false;
   @Input() desabilitarIrParaProximoMes = false;
   @Input() desabilitarIrParaMesAnterior = false;
-  @Input() configPeriodoDiaSemana: { inicio: number; fim: number; intervalo?: number };
-  @Input() periodoMarcadoParaEventos: { dataInicial: string; dataFim: string };
+  @Input() configPeriodoDiaSemana!: { inicio: number; fim: number; intervalo?: number };
+  @Input() periodoMarcadoParaEventos!: { dataInicial: string; dataFim: string };
   @Input() acoesEvento: { nome: string; metodo: (evento: any) => void }[] = [];
   @Output() cliqueAdicionarEvento = new EventEmitter<{ data: string }>();
   @Output() cliqueVisualizarEvento = new EventEmitter<ICalendarioEvento>();
   mesAtual = '';
-  anoAtual: number;
+  anoAtual!: number;
 
   constructor(private cdr: ChangeDetectorRef) {}
 

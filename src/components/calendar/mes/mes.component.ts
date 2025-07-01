@@ -38,12 +38,12 @@ export class VisualizacaoMensalComponent implements OnInit, OnChanges, OnDestroy
   private observadorDeRedimensionamento!: ResizeObserver;
   private indiceMesAtual = 0;
   private diasMarcados: string[] = [];
-  mesAtual: string;
-  anoAtual: number;
+  mesAtual!: string;
+  anoAtual!: number;
   diasNoMes: string[] = [];
   popoverAberto = false;
   diaSelecionado: string | null = null;
-  diaAtual = '';
+  diaAtual!: string;
   diasDaSemana: string[] = ['Dom.', 'Seg.', 'Ter.', 'Qua.', 'Qui.', 'Sex.', 'Sáb.'];
 
   constructor(private elementoRef: ElementRef, private cd: ChangeDetectorRef) {}
