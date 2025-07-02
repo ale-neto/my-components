@@ -1,1 +1,1 @@
-export * from './semana.component';
+export * from './semana';

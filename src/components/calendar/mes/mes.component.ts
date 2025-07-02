@@ -14,8 +14,12 @@ import {
   SimpleChanges,
 } from '@angular/core';
 import { ICalendarioEvento } from '../interfaces';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 @Component({
+  standalone: true,
+  imports: [CommonModule, FormsModule ],
   selector: 'app-visualizacao-mensal',
   templateUrl: './mes.component.html',
   styleUrls: ['./mes.component.scss'],

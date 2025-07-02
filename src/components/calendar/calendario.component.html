@@ -12,11 +12,7 @@
   <app-visualizacao-semanal
     #semanaComponent
     [eventos]="eventos"
-    [mesAtual]="mesAtual"
-    [anoAtual]="anoAtual"
-    [desabilitarAdicionarEvento]="desabilitarAdicionarEvento"
-    [desabilitarIrParaProximoMes]="desabilitarIrParaProximoMes"
-    [desabilitarIrParaMesAnterior]="desabilitarIrParaMesAnterior"
+
     [periodoDia]="configPeriodoDiaSemana"
     [acoesEvento]="acoesEvento"
     [periodoMarcadoParaEventos]="periodoMarcadoParaEventos"
@@ -26,12 +22,17 @@
   >
   </app-visualizacao-semanal>
 </ng-container>
+
+<!-- [mesAtual]="mesAtual"
+    [anoAtual]="anoAtual"
+    [desabilitarAdicionarEvento]="desabilitarAdicionarEvento"
+    [desabilitarIrParaProximoMes]="desabilitarIrParaProximoMes"
+    [desabilitarIrParaMesAnterior]="desabilitarIrParaMesAnterior" -->
 <ng-container *ngIf="viewMode === 'mes'">
   <app-visualizacao-mensal
     #mesComponent
     [eventos]="eventos"
-    [mesAtual]="mesAtual"
-    [anoAtual]="anoAtual"
+
     [dataInicial]="periodoMarcadoParaEventos?.dataInicial"
     [desabilitarAdicionarEvento]="desabilitarAdicionarEvento"
     [desabilitarIrParaProximoMes]="desabilitarIrParaProximoMes"
@@ -43,3 +44,7 @@
     (mesMudou)="atualizarMes($event)"
   ></app-visualizacao-mensal>
 </ng-container>
+
+<!--
+[mesAtual]="mesAtual"
+[anoAtual]="anoAtual" -->

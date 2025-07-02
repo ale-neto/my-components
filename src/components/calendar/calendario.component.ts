@@ -15,6 +15,7 @@ import { VisualizacaoMensalComponent } from './mes';
 import { VisualizacaoSemanalComponent } from './semana';
 
 @Component({
+  standalone: false,
   selector: 'app-calendario',
   templateUrl: './calendario.component.html',
   styleUrls: ['./calendario.component.scss'],
@@ -37,10 +38,10 @@ export class CalendarioComponent implements OnChanges, OnInit {
   };
   @Input() periodoMarcadoParaEventos!: { dataInicial: string; dataFim: string };
   @Input() acoesEvento: { nome: string; metodo: (evento: any) => void }[] = [];
-  @Output() cliqueAdicionarEvento = new EventEmitter<{ data: string }>();
+  @Output() cliqueAdicionarEvento = new EventEmitter<{ data: Date }>();
   @Output() cliqueVisualizarEvento = new EventEmitter<ICalendarioEvento>();
-  mesAtual = '';
-  anoAtual!: number;
+  mesAtual: string = '';
+  anoAtual: number = 0;
 
   constructor(private cdr: ChangeDetectorRef) {}
 
