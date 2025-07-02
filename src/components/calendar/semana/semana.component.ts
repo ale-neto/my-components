@@ -1,10 +1,18 @@
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnInit,
+  Output,
+  SimpleChanges,
+} from '@angular/core';
 import { ICalendarioEvento } from '../interfaces';
 
 @Component({
   selector: 'app-visualizacao-semanal',
   templateUrl: './semana.component.html',
-  styleUrls: ['./semana.component.scss']
+  styleUrls: ['./semana.component.scss'],
 })
 export class VisualizacaoSemanalComponent implements OnInit, OnChanges {
   @Input() eventos: ICalendarioEvento[] = [];
@@ -12,9 +20,12 @@ export class VisualizacaoSemanalComponent implements OnInit, OnChanges {
   @Input() periodoDia: { inicio: number; fim: number; intervalo?: number } = {
     inicio: 0,
     fim: 23,
-    intervalo: 60
+    intervalo: 60,
   };
-  @Output() cliqueAdicionarEvento = new EventEmitter<{ data: Date; horaInicio: string }>();
+  @Output() cliqueAdicionarEvento = new EventEmitter<{
+    data: Date;
+    horaInicio: string;
+  }>();
   @Output() cliqueVisualizarEvento = new EventEmitter<any>();
   @Output() mesMudou = new EventEmitter<{ mes: string; ano: number }>();
   @Input() acoesEvento: { nome: string; metodo: (evento: any) => void }[] = [];
@@ -25,10 +36,14 @@ export class VisualizacaoSemanalComponent implements OnInit, OnChanges {
   diasSemana: { data: Date; eventos: ICalendarioEvento[] }[] = [];
   horas: string[] = [];
   diasMarcados: string[] = [];
-  diaAtual: string;
+  diaAtual!: string;
 
   constructor() {
-    this.horas = this.gerarHoras(this.periodoDia.inicio, this.periodoDia.fim, this.periodoDia.intervalo || 60);
+    this.horas = this.gerarHoras(
+      this.periodoDia.inicio,
+      this.periodoDia.fim,
+      this.periodoDia.intervalo || 60
+    );
   }
 
   ngOnInit() {
@@ -49,18 +64,29 @@ export class VisualizacaoSemanalComponent implements OnInit, OnChanges {
     }
     if (changes['periodoDia']) {
       const periodo = changes['periodoDia'].currentValue;
-      this.horas = this.gerarHoras(periodo?.inicio, periodo?.fim, periodo?.intervalo || 60);
+      this.horas = this.gerarHoras(
+        periodo?.inicio,
+        periodo?.fim,
+        periodo?.intervalo || 60
+      );
     }
 
     if (changes['periodoMarcadoParaEventos']) {
-      const { dataInicial, dataFim } = changes['periodoMarcadoParaEventos'].currentValue || {};
+      const { dataInicial, dataFim } =
+        changes['periodoMarcadoParaEventos'].currentValue || {};
       if (dataInicial && dataFim) {
         this.marcarDiasEntre({ dataInicial, dataFim });
       }
     }
   }
 
-  private marcarDiasEntre({ dataInicial, dataFim }: { dataInicial: string; dataFim: string }): void {
+  private marcarDiasEntre({
+    dataInicial,
+    dataFim,
+  }: {
+    dataInicial: string;
+    dataFim: string;
+  }): void {
     this.diasMarcados = [];
 
     const inicio = new Date(dataInicial);
@@ -119,7 +145,7 @@ export class VisualizacaoSemanalComponent implements OnInit, OnChanges {
 
       this.diasSemana.push({
         data: dataAtual,
-        eventos: eventosDoDia
+        eventos: eventosDoDia,
       });
     }
   }
@@ -151,7 +177,10 @@ export class VisualizacaoSemanalComponent implements OnInit, OnChanges {
 
       if (eventosGrupo.length > 1) {
         eventosGrupo.sort((a, b) => {
-          return this.converterHoraParaMinutos(a.horaInicio) - this.converterHoraParaMinutos(b.horaInicio);
+          return (
+            this.converterHoraParaMinutos(a.horaInicio) -
+            this.converterHoraParaMinutos(b.horaInicio)
+          );
         });
 
         for (let i = 0; i < eventosGrupo.length; i++) {
@@ -165,7 +194,10 @@ export class VisualizacaoSemanalComponent implements OnInit, OnChanges {
     }
   }
 
-  private verificarSobreposicao(evento1: ICalendarioEvento, evento2: ICalendarioEvento): boolean {
+  private verificarSobreposicao(
+    evento1: ICalendarioEvento,
+    evento2: ICalendarioEvento
+  ): boolean {
     const inicio1 = this.converterHoraParaMinutos(evento1.horaInicio);
     const fim1 = this.converterHoraParaMinutos(evento1.horaFim);
     const inicio2 = this.converterHoraParaMinutos(evento2.horaInicio);
@@ -225,7 +257,8 @@ export class VisualizacaoSemanalComponent implements OnInit, OnChanges {
     const topoRelativo = horaInicio - horaMinima + minutosInicio / 60;
     const topo = topoRelativo * 50;
 
-    const duracaoHoras = horaFim - horaInicio + (minutosFim - minutosInicio) / 60;
+    const duracaoHoras =
+      horaFim - horaInicio + (minutosFim - minutosInicio) / 60;
     const altura = duracaoHoras * 50;
 
     const largura = 100 / (evento.totalSobrepostos || 1);
@@ -240,7 +273,7 @@ export class VisualizacaoSemanalComponent implements OnInit, OnChanges {
       padding: '5px',
       boxSizing: 'border-box',
       width: `${largura}%`,
-      left: `${esquerda}%`
+      left: `${esquerda}%`,
     };
   }
 
@@ -262,7 +295,7 @@ export class VisualizacaoSemanalComponent implements OnInit, OnChanges {
     this.eventoSelecionado = evento;
     this.posicaoMenu = {
       top: event.clientY + 'px',
-      left: event.clientX + 'px'
+      left: event.clientX + 'px',
     };
   }
 

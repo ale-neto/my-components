@@ -1,7 +1,11 @@
 <div class="cabecalho-calendario">
   <div>
-    <button class="btn btn-secondary" (click)="previous.emit()"><div class="seta-esquerda"></div></button>
-    <button class="btn btn-secondary" (click)="next.emit()"><div class="seta-direita"></div></button>
+    <button class="btn btn-secondary" (click)="previous.emit()">
+      <div class="seta-esquerda"></div>
+    </button>
+    <button class="btn btn-secondary" (click)="next.emit()">
+      <div class="seta-direita"></div>
+    </button>
     <!-- <button class="btn btn-primary" (click)="current.emit()">
       {{ viewMode === 'semana' ? 'Semana Atual' : 'Mês Atual' }}
     </button> -->
@@ -10,7 +14,17 @@
   <h3>{{ mesAtual }} {{ anoAtual }}</h3>
 
   <div class="toggle-container">
-    <span class="toggle-option" [class.active]="viewMode === 'semana'" (click)="toggleView('semana')">Semana</span>
-    <span class="toggle-option" [class.active]="viewMode === 'mes'" (click)="toggleView('mes')">Mês</span>
+    <span
+      class="toggle-option"
+      [class.active]="viewMode === 'semana'"
+      (click)="toggleView('semana')"
+      >Semana</span
+    >
+    <span
+      class="toggle-option"
+      [class.active]="viewMode === 'mes'"
+      (click)="toggleView('mes')"
+      >Mês</span
+    >
   </div>
 </div>
