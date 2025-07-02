@@ -11,16 +11,18 @@ import {
   OnDestroy,
   OnInit,
   Output,
-  SimpleChanges
+  SimpleChanges,
 } from '@angular/core';
 import { ICalendarioEvento } from '../interfaces';
 
 @Component({
   selector: 'app-visualizacao-mensal',
   templateUrl: './mes.component.html',
-  styleUrls: ['./mes.component.scss']
+  styleUrls: ['./mes.component.scss'],
 })
-export class VisualizacaoMensalComponent implements OnInit, OnChanges, OnDestroy, AfterViewInit {
+export class VisualizacaoMensalComponent
+  implements OnInit, OnChanges, OnDestroy, AfterViewInit
+{
   @Input() eventos: Array<ICalendarioEvento> = [];
   @Input() desabilitarAdicionarEvento = false;
   @Input() desabilitarIrParaProximoMes = false;
@@ -44,7 +46,15 @@ export class VisualizacaoMensalComponent implements OnInit, OnChanges, OnDestroy
   popoverAberto = false;
   diaSelecionado: string | null = null;
   diaAtual!: string;
-  diasDaSemana: string[] = ['Dom.', 'Seg.', 'Ter.', 'Qua.', 'Qui.', 'Sex.', 'Sáb.'];
+  diasDaSemana: string[] = [
+    'Dom.',
+    'Seg.',
+    'Ter.',
+    'Qua.',
+    'Qui.',
+    'Sex.',
+    'Sáb.',
+  ];
 
   constructor(private elementoRef: ElementRef, private cd: ChangeDetectorRef) {}
 
@@ -57,7 +67,9 @@ export class VisualizacaoMensalComponent implements OnInit, OnChanges, OnDestroy
       }
     });
 
-    this.observadorDeRedimensionamento.observe(this.elementoRef.nativeElement.querySelector('.calendario'));
+    this.observadorDeRedimensionamento.observe(
+      this.elementoRef.nativeElement.querySelector('.calendario')
+    );
   }
 
   ngOnDestroy(): void {
@@ -67,7 +79,9 @@ export class VisualizacaoMensalComponent implements OnInit, OnChanges, OnDestroy
   ngOnInit() {
     const { dataInicial, dataFim } = this.periodoMarcadoParaEventos || {};
 
-    const referencia = dataInicial ? new Date(dataInicial + 'T00:00:00') : new Date();
+    const referencia = dataInicial
+      ? new Date(dataInicial + 'T00:00:00')
+      : new Date();
 
     this.anoAtual = referencia.getFullYear();
     this.indiceMesAtual = referencia.getMonth();
@@ -83,14 +97,21 @@ export class VisualizacaoMensalComponent implements OnInit, OnChanges, OnDestroy
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['periodoMarcadoParaEventos']) {
-      const { dataInicial, dataFim } = changes['periodoMarcadoParaEventos'].currentValue || {};
+      const { dataInicial, dataFim } =
+        changes['periodoMarcadoParaEventos'].currentValue || {};
       if (dataInicial && dataFim) {
         this.marcarDiasEntre({ dataInicial, dataFim });
       }
     }
   }
 
-  private marcarDiasEntre({ dataInicial, dataFim }: { dataInicial: string; dataFim: string }): void {
+  private marcarDiasEntre({
+    dataInicial,
+    dataFim,
+  }: {
+    dataInicial: string;
+    dataFim: string;
+  }): void {
     this.diasMarcados = [];
 
     const inicio = new Date(dataInicial);
@@ -107,19 +128,27 @@ export class VisualizacaoMensalComponent implements OnInit, OnChanges, OnDestroy
     const diasNoMes = new Date(ano, indiceMes + 1, 0).getDate();
     const primeiroDiaDaSemana = new Date(ano, indiceMes, 1).getDay();
 
-    const diasDoMesAtual = Array.from({ length: diasNoMes }, (_, i) => new Date(ano, indiceMes, i + 1).toISOString());
+    const diasDoMesAtual = Array.from({ length: diasNoMes }, (_, i) =>
+      new Date(ano, indiceMes, i + 1).toISOString()
+    );
 
-    const diasDoMesAnterior = Array.from({ length: primeiroDiaDaSemana }, (_, i) => {
-      const data = new Date(ano, indiceMes, -(primeiroDiaDaSemana - 1 - i));
-      return data.toISOString();
-    });
+    const diasDoMesAnterior = Array.from(
+      { length: primeiroDiaDaSemana },
+      (_, i) => {
+        const data = new Date(ano, indiceMes, -(primeiroDiaDaSemana - 1 - i));
+        return data.toISOString();
+      }
+    );
 
     const totalDeDias = diasDoMesAnterior.length + diasDoMesAtual.length;
 
-    const diasDoProximoMes = Array.from({ length: 42 - totalDeDias }, (_, i) => {
-      const data = new Date(ano, indiceMes + 1, i + 1);
-      return data.toISOString();
-    });
+    const diasDoProximoMes = Array.from(
+      { length: 42 - totalDeDias },
+      (_, i) => {
+        const data = new Date(ano, indiceMes + 1, i + 1);
+        return data.toISOString();
+      }
+    );
 
     return [...diasDoMesAnterior, ...diasDoMesAtual, ...diasDoProximoMes];
   }
@@ -145,18 +174,24 @@ export class VisualizacaoMensalComponent implements OnInit, OnChanges, OnDestroy
   }
 
   private atualizarMesEDias() {
-    const mes = formatDate(new Date(this.anoAtual, this.indiceMesAtual), 'MMMM', 'pt-BR');
+    const mes = formatDate(
+      new Date(this.anoAtual, this.indiceMesAtual),
+      'MMMM',
+      'pt-BR'
+    );
     this.mesAtual = mes.charAt(0).toUpperCase() + mes.slice(1);
     this.diasNoMes = this.gerarDiasDoMes(this.anoAtual, this.indiceMesAtual);
   }
 
-  adicionarEvento(dataInicio: Date) {
+  adicionarEvento(dataInicio: string | Date) {
     const data = new Date(dataInicio);
     this.cliqueAdicionarEvento.emit({ data });
   }
 
   obterEventosDoDia(dia: string): ICalendarioEvento[] {
-    return this.eventos.filter((evento) => this.normalizarData(evento.data) === this.normalizarData(dia));
+    return this.eventos.filter(
+      (evento) => this.normalizarData(evento.data) === this.normalizarData(dia)
+    );
   }
 
   obterEstiloDoEvento(cor: string): Record<string, string> {
@@ -165,7 +200,8 @@ export class VisualizacaoMensalComponent implements OnInit, OnChanges, OnDestroy
 
   alternarPopover(dia: string, evento: Event) {
     evento.stopPropagation();
-    this.popoverAberto = this.diaSelecionado === dia ? !this.popoverAberto : true;
+    this.popoverAberto =
+      this.diaSelecionado === dia ? !this.popoverAberto : true;
     this.diaSelecionado = dia;
   }
 
@@ -208,7 +244,7 @@ export class VisualizacaoMensalComponent implements OnInit, OnChanges, OnDestroy
     this.eventoSelecionado = evento;
     this.posicaoMenu = {
       top: event.clientY + 'px',
-      left: event.clientX + 'px'
+      left: event.clientX + 'px',
     };
   }
 
@@ -223,10 +259,12 @@ export class VisualizacaoMensalComponent implements OnInit, OnChanges, OnDestroy
 
   get podeNavegar(): { anterior: boolean; proximo: boolean } {
     const agora = new Date();
-    const estaNoMesAtual = this.anoAtual === agora.getFullYear() && this.indiceMesAtual === agora.getMonth();
+    const estaNoMesAtual =
+      this.anoAtual === agora.getFullYear() &&
+      this.indiceMesAtual === agora.getMonth();
     return {
       anterior: this.desabilitarIrParaMesAnterior && estaNoMesAtual,
-      proximo: this.desabilitarIrParaProximoMes && estaNoMesAtual
+      proximo: this.desabilitarIrParaProximoMes && estaNoMesAtual,
     };
   }
 }

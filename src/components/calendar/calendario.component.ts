@@ -8,7 +8,7 @@ import {
   OnInit,
   Output,
   SimpleChanges,
-  ViewChild
+  ViewChild,
 } from '@angular/core';
 import { ICalendarioEvento } from './interfaces';
 import { VisualizacaoMensalComponent } from './mes';
@@ -18,17 +18,23 @@ import { VisualizacaoSemanalComponent } from './semana';
   selector: 'app-calendario',
   templateUrl: './calendario.component.html',
   styleUrls: ['./calendario.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CalendarioComponent implements OnChanges, OnInit {
-  @ViewChild(VisualizacaoMensalComponent) mesComponent!: VisualizacaoMensalComponent;
-  @ViewChild(VisualizacaoSemanalComponent) semanaComponent!: VisualizacaoSemanalComponent;
+  @ViewChild(VisualizacaoMensalComponent)
+  mesComponent!: VisualizacaoMensalComponent;
+  @ViewChild(VisualizacaoSemanalComponent)
+  semanaComponent!: VisualizacaoSemanalComponent;
   @Input() viewMode: 'mes' | 'semana' = 'semana';
   @Input() eventos: ICalendarioEvento[] = [];
   @Input() desabilitarAdicionarEvento = false;
   @Input() desabilitarIrParaProximoMes = false;
   @Input() desabilitarIrParaMesAnterior = false;
-  @Input() configPeriodoDiaSemana!: { inicio: number; fim: number; intervalo?: number };
+  @Input() configPeriodoDiaSemana!: {
+    inicio: number;
+    fim: number;
+    intervalo?: number;
+  };
   @Input() periodoMarcadoParaEventos!: { dataInicial: string; dataFim: string };
   @Input() acoesEvento: { nome: string; metodo: (evento: any) => void }[] = [];
   @Output() cliqueAdicionarEvento = new EventEmitter<{ data: string }>();
@@ -49,7 +55,11 @@ export class CalendarioComponent implements OnChanges, OnInit {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes['eventos'] || changes['configPeriodoDiaSemana'] || changes['periodoMarcadoParaEventos']) {
+    if (
+      changes['eventos'] ||
+      changes['configPeriodoDiaSemana'] ||
+      changes['periodoMarcadoParaEventos']
+    ) {
       this.cdr.markForCheck();
     }
   }
