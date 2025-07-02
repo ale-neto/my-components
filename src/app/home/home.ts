@@ -1,8 +1,9 @@
 import { Component } from '@angular/core';
+import { ANCalendarioModule } from 'src/components/calendar';
 
 @Component({
   selector: 'app-home',
-  imports: [],
+  imports: [ANCalendarioModule],
   templateUrl: './home.html',
   styleUrl: './home.scss',
 })

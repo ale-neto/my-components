@@ -8,11 +8,14 @@ import {
   SimpleChanges,
 } from '@angular/core';
 import { ICalendarioEvento } from '../interfaces';
+import { CommonModule } from '@angular/common';
 
 @Component({
+  standalone: true,
+  imports: [CommonModule],
   selector: 'app-visualizacao-semanal',
-  templateUrl: './semana.component.html',
-  styleUrls: ['./semana.component.scss'],
+  templateUrl: './semana.html',
+  styleUrls: ['./semana.scss'],
 })
 export class VisualizacaoSemanalComponent implements OnInit, OnChanges {
   @Input() eventos: ICalendarioEvento[] = [];

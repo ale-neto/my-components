@@ -7,13 +7,14 @@ import { VisualizacaoSemanalComponent } from './semana';
 import { CalendarioHeaderComponent } from './header';
 
 @NgModule({
-  declarations: [
-    CalendarioComponent,
-    VisualizacaoMensalComponent,
-    VisualizacaoSemanalComponent,
+  declarations: [CalendarioComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
     CalendarioHeaderComponent,
+    VisualizacaoSemanalComponent,
+    VisualizacaoMensalComponent
   ],
-  imports: [CommonModule, FormsModule],
   exports: [CalendarioComponent],
 })
-export class GfcCalendarioModule {}
+export class ANCalendarioModule {}
