@@ -16,7 +16,7 @@ import { VisualizacaoSemanalComponent } from './semana';
 
 @Component({
   standalone: false,
-  selector: 'app-calendario',
+  selector: 'app-calendar',
   templateUrl: './calendario.component.html',
   styleUrls: ['./calendario.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
