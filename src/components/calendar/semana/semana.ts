@@ -32,6 +32,7 @@ export class VisualizacaoSemanalComponent implements OnInit, OnChanges {
   @Output() cliqueVisualizarEvento = new EventEmitter<any>();
   @Output() mesMudou = new EventEmitter<{ mes: string; ano: number }>();
   @Input() acoesEvento: { nome: string; metodo: (evento: any) => void }[] = [];
+
   private dataAtual: Date = new Date();
   menuVisivel = false;
   posicaoMenu = { top: '0px', left: '0px' };
@@ -80,6 +81,24 @@ export class VisualizacaoSemanalComponent implements OnInit, OnChanges {
       if (dataInicial && dataFim) {
         this.marcarDiasEntre({ dataInicial, dataFim });
       }
+    }
+  }
+
+  // Método para obter classes Tailwind baseadas no tipo/prioridade do evento
+  obterClassesEvento(evento: any): string {
+    const baseClasses = 'hover:brightness-110';
+
+    // Cores baseadas no tipo ou prioridade do evento
+    if (evento.tipo === 'urgente' || evento.prioridade === 'alta') {
+      return `bg-red-600 hover:bg-red-700 border-red-400 ${baseClasses}`;
+    } else if (evento.tipo === 'importante' || evento.prioridade === 'media') {
+      return `bg-yellow-600 hover:bg-yellow-700 border-yellow-400 ${baseClasses}`;
+    } else if (evento.tipo === 'reuniao') {
+      return `bg-purple-600 hover:bg-purple-700 border-purple-400 ${baseClasses}`;
+    } else if (evento.tipo === 'pessoal') {
+      return `bg-green-600 hover:bg-green-700 border-green-400 ${baseClasses}`;
+    } else {
+      return `bg-blue-600 hover:bg-blue-700 border-blue-400 ${baseClasses}`;
     }
   }
 
@@ -258,11 +277,11 @@ export class VisualizacaoSemanalComponent implements OnInit, OnChanges {
     const horaMinima = this.periodoDia?.inicio || 0;
 
     const topoRelativo = horaInicio - horaMinima + minutosInicio / 60;
-    const topo = topoRelativo * 50;
+    const topo = topoRelativo * 48; // 48px altura para cada hora (h-12 = 3rem = 48px)
 
     const duracaoHoras =
       horaFim - horaInicio + (minutosFim - minutosInicio) / 60;
-    const altura = duracaoHoras * 50;
+    const altura = Math.max(duracaoHoras * 48, 32); // Altura mínima de 32px
 
     const largura = 100 / (evento.totalSobrepostos || 1);
     const esquerda = (evento.posicao || 0) * largura;
@@ -270,11 +289,6 @@ export class VisualizacaoSemanalComponent implements OnInit, OnChanges {
     return {
       top: `${topo}px`,
       height: `${altura}px`,
-      backgroundColor: evento.cor || '#007bff',
-      color: '#fff',
-      borderRadius: '4px',
-      padding: '5px',
-      boxSizing: 'border-box',
       width: `${largura}%`,
       left: `${esquerda}%`,
     };
