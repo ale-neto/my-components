@@ -1,206 +1,206 @@
-:host {
-  .menu-contexto {
-    position: fixed;
-    background: white;
-    border: 1px solid #ccc;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-    z-index: 1000;
-    padding: 4px 0;
-    min-width: 120px;
-    border-radius: 4px;
-  }
+// :host {
+//   .menu-contexto {
+//     position: fixed;
+//     background: white;
+//     border: 1px solid #ccc;
+//     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+//     z-index: 1000;
+//     padding: 4px 0;
+//     min-width: 120px;
+//     border-radius: 4px;
+//   }
 
-  .item-acao {
-    padding: 6px 12px;
-    cursor: pointer;
-    white-space: nowrap;
+//   .item-acao {
+//     padding: 6px 12px;
+//     cursor: pointer;
+//     white-space: nowrap;
 
-    &:hover {
-      background-color: #f0f0f0;
-    }
-  }
+//     &:hover {
+//       background-color: #f0f0f0;
+//     }
+//   }
 
-  .texto-limitado {
-    max-width: 100%;
-    width: 100%;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
+//   .texto-limitado {
+//     max-width: 100%;
+//     width: 100%;
+//     white-space: nowrap;
+//     overflow: hidden;
+//     text-overflow: ellipsis;
+//   }
 
-  .visualizacao-semanal {
-    display: flex;
-    flex-direction: column;
+//   .visualizacao-semanal {
+//     display: flex;
+//     flex-direction: column;
 
-    .grade-dia {
-      position: relative;
-      height: 100%;
-      height: 50px;
+//     .grade-dia {
+//       position: relative;
+//       height: 100%;
+//       height: 50px;
 
-      .intervalo-horario {
-        height: 50px;
-        border-top: 1px solid #f0f0f0;
-        background-color: #fff;
-        cursor: pointer;
-        transition: background-color 0.3s;
+//       .intervalo-horario {
+//         height: 50px;
+//         border-top: 1px solid #f0f0f0;
+//         background-color: #fff;
+//         cursor: pointer;
+//         transition: background-color 0.3s;
 
-        &:hover {
-          background-color: #f8f9fa;
-        }
+//         &:hover {
+//           background-color: #f8f9fa;
+//         }
 
-        &:active {
-          background-color: #e9ecef;
-        }
-      }
+//         &:active {
+//           background-color: #e9ecef;
+//         }
+//       }
 
-      .evento {
-        position: absolute;
-        background-color: #007bff;
-        color: white;
-        padding: 5px;
-        border-radius: 4px;
-        font-size: 12px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-        cursor: pointer;
-        transition: all 0.3s ease;
-        box-sizing: border-box;
-        overflow: hidden;
-        max-width: 100%;
+//       .evento {
+//         position: absolute;
+//         background-color: #007bff;
+//         color: white;
+//         padding: 5px;
+//         border-radius: 4px;
+//         font-size: 12px;
+//         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+//         cursor: pointer;
+//         transition: all 0.3s ease;
+//         box-sizing: border-box;
+//         overflow: hidden;
+//         max-width: 100%;
 
-        .titulo-evento {
-          font-weight: bold;
-          font-size: 12px;
-          margin-bottom: 2px;
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
-        }
+//         .titulo-evento {
+//           font-weight: bold;
+//           font-size: 12px;
+//           margin-bottom: 2px;
+//           white-space: nowrap;
+//           overflow: hidden;
+//           text-overflow: ellipsis;
+//         }
 
-        .horario-evento {
-          font-size: 12px;
-          opacity: 0.8;
-        }
+//         .horario-evento {
+//           font-size: 12px;
+//           opacity: 0.8;
+//         }
 
-        &:hover {
-          background-color: #0056b3;
-          transform: scale(1.02);
-          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-          z-index: 10;
-        }
-      }
-    }
+//         &:hover {
+//           background-color: #0056b3;
+//           transform: scale(1.02);
+//           box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+//           z-index: 10;
+//         }
+//       }
+//     }
 
-    .navegacao {
-      display: flex;
-      justify-content: center;
-      margin-bottom: 10px;
+//     .navegacao {
+//       display: flex;
+//       justify-content: center;
+//       margin-bottom: 10px;
 
-      .botao-nav {
-        margin: 0 5px;
-        padding: 8px 12px;
-        background-color: #007bff;
-        border: none;
-        color: white;
-        font-size: 14px;
-        font-weight: bold;
-        cursor: pointer;
-        border-radius: 4px;
-        transition: background-color 0.3s;
+//       .botao-nav {
+//         margin: 0 5px;
+//         padding: 8px 12px;
+//         background-color: #007bff;
+//         border: none;
+//         color: white;
+//         font-size: 14px;
+//         font-weight: bold;
+//         cursor: pointer;
+//         border-radius: 4px;
+//         transition: background-color 0.3s;
 
-        &:hover {
-          background-color: #0056b3;
-        }
+//         &:hover {
+//           background-color: #0056b3;
+//         }
 
-        &:active {
-          background-color: #003f7f;
-        }
-      }
-    }
+//         &:active {
+//           background-color: #003f7f;
+//         }
+//       }
+//     }
 
-    .cabecalho {
-      display: flex;
-      border-bottom: 1px solid #ddd;
+//     .cabecalho {
+//       display: flex;
+//       border-bottom: 1px solid #ddd;
 
-      .coluna-horario {
-        width: 50px;
-      }
+//       .coluna-horario {
+//         width: 50px;
+//       }
 
-      .coluna-dia {
-        flex: 1;
-        text-align: center;
-        background-color: #e2e2e2;
-        margin: 1px;
+//       .coluna-dia {
+//         flex: 1;
+//         text-align: center;
+//         background-color: #e2e2e2;
+//         margin: 1px;
 
-        .cabecalho-dia {
-          font-weight: bold;
-          padding: 10px 0;
-          background-color: #f8f9fa;
-          border-left: 1px solid #ddd;
-        }
+//         .cabecalho-dia {
+//           font-weight: bold;
+//           padding: 10px 0;
+//           background-color: #f8f9fa;
+//           border-left: 1px solid #ddd;
+//         }
 
-        .dia {
-          font-size: 18px;
-          color: #e29828;
+//         .dia {
+//           font-size: 18px;
+//           color: #5c5b5f;
 
-          &.atual {
-            color: #f8f9fa;
-            background-color: #28a745;
-          }
+//           &.atual {
+//             color: #f8f9fa;
+//             background-color: #28a745;
+//           }
 
-          &.marcado {
-            color: #f8f9fa;
-            background-color: #e29828;
-          }
-        }
+//           &.marcado {
+//             color: #f8f9fa;
+//             background-color: #e29828;
+//           }
+//         }
 
-        .mes {
-          font-size: 12px;
-          color: #5c5b5f;
-          padding: 7px;
+//         .mes {
+//           font-size: 12px;
+//           color: #5c5b5f;
+//           padding: 7px;
 
-          &.atual {
-            color: #f8f9fa;
-            background-color: #28a745;
-          }
+//           &.atual {
+//             color: #f8f9fa;
+//             background-color: #28a745;
+//           }
 
-          &.marcado {
-            color: #f8f9fa;
-            background-color: #e29828;
-          }
-        }
-      }
-    }
+//           &.marcado {
+//             color: #f8f9fa;
+//             background-color: #e29828;
+//           }
+//         }
+//       }
+//     }
 
-    .corpo {
-      display: flex;
-      flex-grow: 1;
-      height: calc(100% - 50px);
+//     .corpo {
+//       display: flex;
+//       flex-grow: 1;
+//       height: calc(100% - 50px);
 
-      .coluna-horario {
-        width: 50px;
-        display: flex;
-        flex-direction: column;
-        border-right: 1px solid #ddd;
-        position: sticky;
-        left: 0;
-        background-color: #fff;
-        z-index: 2;
+//       .coluna-horario {
+//         width: 50px;
+//         display: flex;
+//         flex-direction: column;
+//         border-right: 1px solid #ddd;
+//         position: sticky;
+//         left: 0;
+//         background-color: #fff;
+//         z-index: 2;
 
-        .rotulo-horario {
-          height: 50px;
-          line-height: 50px;
-          text-align: center;
-          border-top: 1px solid #ddd;
-          font-size: 12px;
-          color: #666;
-        }
-      }
+//         .rotulo-horario {
+//           height: 50px;
+//           line-height: 50px;
+//           text-align: center;
+//           border-top: 1px solid #ddd;
+//           font-size: 12px;
+//           color: #666;
+//         }
+//       }
 
-      .coluna-dia {
-        flex: 1;
-        position: relative;
-        border-left: 1px solid #ddd;
-      }
-    }
-  }
-}
+//       .coluna-dia {
+//         flex: 1;
+//         position: relative;
+//         border-left: 1px solid #ddd;
+//       }
+//     }
+//   }
+// }
