@@ -19,13 +19,13 @@ import { FormsModule } from '@angular/forms';
 
 @Component({
   standalone: true,
-  imports: [CommonModule, FormsModule ],
+  imports: [CommonModule, FormsModule],
   selector: 'app-visualizacao-mensal',
-  templateUrl: './mes.component.html',
-  styleUrls: ['./mes.component.scss'],
+  templateUrl: './mes.html',
+  styleUrls: ['./mes.scss'],
 })
 export class VisualizacaoMensalComponent
-  implements OnInit, OnChanges, OnDestroy, AfterViewInit
+  implements OnInit, OnChanges, OnDestroy
 {
   @Input() eventos: Array<ICalendarioEvento> = [];
   @Input() desabilitarAdicionarEvento = false;
@@ -62,19 +62,19 @@ export class VisualizacaoMensalComponent
 
   constructor(private elementoRef: ElementRef, private cd: ChangeDetectorRef) {}
 
-  ngAfterViewInit(): void {
-    this.observadorDeRedimensionamento = new ResizeObserver((entradas) => {
-      for (const entrada of entradas) {
-        const largura = entrada.contentRect.width;
-        this.modoCompacto = largura < 600;
-        this.cd.detectChanges();
-      }
-    });
+  // ngAfterViewInit(): void {
+  //   this.observadorDeRedimensionamento = new ResizeObserver((entradas) => {
+  //     for (const entrada of entradas) {
+  //       const largura = entrada.contentRect.width;
+  //       this.modoCompacto = largura < 600;
+  //       this.cd.detectChanges();
+  //     }
+  //   });
 
-    this.observadorDeRedimensionamento.observe(
-      this.elementoRef.nativeElement.querySelector('.calendario')
-    );
-  }
+  //   this.observadorDeRedimensionamento.observe(
+  //     this.elementoRef.nativeElement.querySelector('.calendario')
+  //   );
+  // }
 
   ngOnDestroy(): void {
     this.observadorDeRedimensionamento.disconnect();

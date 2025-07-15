@@ -1,1 +1,1 @@
-export * from './mes.component';
+export * from './mes';
