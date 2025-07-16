@@ -6,8 +6,8 @@ import {
   OnInit,
   Output,
   SimpleChanges,
-} from '@angular/core';
-import { ICalendarioEvento } from '../interfaces';
+} from '@angular/colore';
+import { ICalendarEvent } from '../interfaces';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -15,10 +15,9 @@ import { CommonModule } from '@angular/common';
   imports: [CommonModule],
   selector: 'app-visualizacao-semanal',
   templateUrl: './semana.html',
-  styleUrls: ['./semana.scss'],
 })
 export class VisualizacaoSemanalComponent implements OnInit, OnChanges {
-  @Input() eventos: ICalendarioEvento[] = [];
+  @Input() eventos: ICalendarEvent[] = [];
   @Input() periodoMarcadoParaEventos?: { dataInicial: string; dataFim: string };
   @Input() periodoDia: { inicio: number; fim: number; intervalo?: number } = {
     inicio: 0,
@@ -27,241 +26,233 @@ export class VisualizacaoSemanalComponent implements OnInit, OnChanges {
   };
   @Output() cliqueAdicionarEvento = new EventEmitter<{
     data: Date;
-    horaInicio: string;
+    startTime: string;
   }>();
   @Output() cliqueVisualizarEvento = new EventEmitter<any>();
-  @Output() mesMudou = new EventEmitter<{ mes: string; ano: number }>();
-  @Input() acoesEvento: { nome: string; metodo: (evento: any) => void }[] = [];
-  private dataAtual: Date = new Date();
-  menuVisivel = false;
-  posicaoMenu = { top: '0px', left: '0px' };
-  eventoSelecionado: any;
-  diasSemana: { data: Date; eventos: ICalendarioEvento[] }[] = [];
-  horas: string[] = [];
-  diasMarcados: string[] = [];
-  diaAtual!: string;
 
   constructor() {
-    this.horas = this.gerarHoras(
-      this.periodoDia.inicio,
-      this.periodoDia.fim,
-      this.periodoDia.intervalo || 60
+    this.hours = this.generateHours(
+      this.dayPeriod.start,
+      this.dayPeriod.end,
+      this.dayPeriod.interval || 60
     );
   }
 
   ngOnInit() {
-    const { dataInicial, dataFim } = this.periodoMarcadoParaEventos || {};
-    const agora = new Date();
-    this.diaAtual = agora.toISOString().split('T')[0];
-    this.dataAtual = dataInicial ? new Date(dataInicial + 'T00:00:00') : agora;
+    const { startDate, endDate } = this.markedPeriod || {};
+    const now = new Date();
+    this.currentDay = now.toISOString().split('T')[0];
+    this.currentDate = startDate
+      ? new Date(startDate + 'T00:00:00')
+      : now;
 
-    if (dataInicial && dataFim) {
-      this.marcarDiasEntre({ dataInicial, dataFim });
+    if (startDate && endDate) {
+      this.markDaysBetween({ startDate, endDate });
     }
-    this.configurarDiasSemana();
+    this.configureDaysOfWeek();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['eventos']) {
-      this.configurarDiasSemana();
+    if (changes['events']) {
+      this.configureDaysOfWeek();
     }
-    if (changes['periodoDia']) {
-      const periodo = changes['periodoDia'].currentValue;
-      this.horas = this.gerarHoras(
-        periodo?.inicio,
-        periodo?.fim,
-        periodo?.intervalo || 60
+    if (changes['dayPeriod']) {
+      const period = changes['dayPeriod'].currentValue;
+      this.hours = this.generateHours(
+        period?.start,
+        period?.end,
+        period?.interval || 60
       );
     }
 
-    if (changes['periodoMarcadoParaEventos']) {
-      const { dataInicial, dataFim } =
-        changes['periodoMarcadoParaEventos'].currentValue || {};
-      if (dataInicial && dataFim) {
-        this.marcarDiasEntre({ dataInicial, dataFim });
+    if (changes['markedPeriod']) {
+      const { startDate, endDate } =
+        changes['markedPeriod'].currentValue || {};
+      if (startDate && endDate) {
+        this.markDaysBetween({ startDate, endDate });
       }
     }
   }
 
-  private marcarDiasEntre({
-    dataInicial,
-    dataFim,
+  private markDaysBetween({
+    startDate,
+    endDate,
   }: {
-    dataInicial: string;
-    dataFim: string;
+    startDate: string;
+    endDate: string;
   }): void {
-    this.diasMarcados = [];
+    this.markedDays = [];
 
-    const inicio = new Date(dataInicial);
-    const fim = new Date(dataFim);
+    const start = new Date(startDate);
+    const end = new Date(endDate);
 
-    const current = new Date(inicio);
-    while (current <= fim) {
-      this.diasMarcados.push(current.toISOString().split('T')[0]);
+    const current = new Date(start);
+    while (current <= end) {
+      this.markedDays.push(current.toISOString().split('T')[0]);
       current.setDate(current.getDate() + 1);
     }
   }
 
-  private emitirMudancaDeMes() {
-    const mes = this.dataAtual.toLocaleString('pt-BR', { month: 'long' });
-    const anoAtual = this.dataAtual.getFullYear();
-    const mesAtual = mes.charAt(0).toUpperCase() + mes.slice(1);
-    this.mesMudou.emit({ mes: mesAtual, ano: anoAtual });
+  private emitMonthChange() {
+    const month = this.currentDate.toLocaleString('en-US', { month: 'long' });
+    const currentYear = this.currentDate.getFullYear();
+    const currentMonth = month.charAt(0).toUpperCase() + month.slice(1);
+    this.monthChanged.emit({ month: currentMonth, year: currentYear });
   }
 
-  private gerarHoras(horaInicio = 0, horaFim = 23, intervalo = 60): string[] {
-    const horas: string[] = [];
+  private generateHours(startTime = 0, endTime = 23, interval = 60): string[] {
+    const hours: string[] = [];
 
-    horaInicio = Math.max(0, Math.min(23, horaInicio));
-    horaFim = Math.max(0, Math.min(23, horaFim));
+    startTime = Math.max(0, Math.min(23, startTime));
+    endTime = Math.max(0, Math.min(23, endTime));
 
-    if (horaInicio > horaFim) {
-      [horaInicio, horaFim] = [horaFim, horaInicio];
+    if (startTime > endTime) {
+      [startTime, endTime] = [endTime, startTime];
     }
 
-    const incremento = intervalo / 60;
+    const increment = interval / 60;
 
-    for (let i = horaInicio; i <= horaFim; i += incremento) {
-      const hora = Math.floor(i);
-      const minutos = Math.round((i - hora) * 60);
+    for (let i = startTime; i <= endTime; i += increment) {
+      const hour = Math.floor(i);
+      const minutes = Math.round((i - hour) * 60);
 
-      const horaStr = hora < 10 ? `0${hora}` : `${hora}`;
-      const minutosStr = minutos < 10 ? `0${minutos}` : `${minutos}`;
+      const hourStr = hour < 10 ? `0${hour}` : `${hour}`;
+      const minutesStr = minutes < 10 ? `0${minutes}` : `${minutes}`;
 
-      horas.push(`${horaStr}:${minutosStr}`);
+      hours.push(`${hourStr}:${minutesStr}`);
     }
 
-    return horas;
+    return hours;
   }
 
-  private configurarDiasSemana() {
-    this.diasSemana = [];
-    const primeiroDiaSemana = this.obterPrimeiroDiaSemana(this.dataAtual);
+  private configureDaysOfWeek() {
+    this.daysOfWeek = [];
+    const firstDayOfWeek = this.getFirstDayOfWeek(this.currentDate);
 
     for (let i = 0; i < 7; i++) {
-      const dataAtual = new Date(primeiroDiaSemana);
-      dataAtual.setDate(primeiroDiaSemana.getDate() + i);
+      const currentDate = new Date(firstDayOfWeek);
+      currentDate.setDate(firstDayOfWeek.getDate() + i);
 
-      const eventosDoDia = this.filtrarEventosDoDia(dataAtual);
+      const eventsOfDay = this.filterEventsOfDay(currentDate);
 
-      this.calcularSobreposicoes(eventosDoDia);
+      this.calculateOverlaps(eventsOfDay);
 
-      this.diasSemana.push({
-        data: dataAtual,
-        eventos: eventosDoDia,
+      this.daysOfWeek.push({
+        date: currentDate,
+        events: eventsOfDay,
       });
     }
   }
 
-  private calcularSobreposicoes(eventos: ICalendarioEvento[]) {
-    if (!eventos.length) return;
+  private calculateOverlaps(events: ICalendarEvent[]) {
+    if (!events.length) return;
 
-    const eventosAgrupados: { [key: string]: ICalendarioEvento[] } = {};
+    const groupedEvents: { [key: string]: ICalendarEvent[] } = {};
 
-    for (const evento of eventos) {
-      let grupoEncontrado = false;
+    for (const event of events) {
+      let groupFound = false;
 
-      for (const grupo in eventosAgrupados) {
-        if (this.verificarSobreposicao(evento, eventosAgrupados[grupo][0])) {
-          eventosAgrupados[grupo].push(evento);
-          grupoEncontrado = true;
+      for (const group in groupedEvents) {
+        if (this.checkOverlap(event, groupedEvents[group][0])) {
+          groupedEvents[group].push(event);
+          groupFound = true;
           break;
         }
       }
 
-      if (!grupoEncontrado) {
-        const novoGrupoId = `grupo_${Object.keys(eventosAgrupados).length}`;
-        eventosAgrupados[novoGrupoId] = [evento];
+      if (!groupFound) {
+        const newGroupId = `group_${Object.keys(groupedEvents).length}`;
+        groupedEvents[newGroupId] = [event];
       }
     }
 
-    for (const grupo in eventosAgrupados) {
-      const eventosGrupo = eventosAgrupados[grupo];
+    for (const group in groupedEvents) {
+      const groupEvents = groupedEvents[group];
 
-      if (eventosGrupo.length > 1) {
-        eventosGrupo.sort((a, b) => {
+      if (groupEvents.length > 1) {
+        groupEvents.sort((a, b) => {
           return (
-            this.converterHoraParaMinutos(a.horaInicio) -
-            this.converterHoraParaMinutos(b.horaInicio)
+            this.convertTimeToMinutes(a.startTime) -
+            this.convertTimeToMinutes(b.startTime)
           );
         });
 
-        for (let i = 0; i < eventosGrupo.length; i++) {
-          (eventosGrupo[i] as any).posicao = i;
-          (eventosGrupo[i] as any).totalSobrepostos = eventosGrupo.length;
+        for (let i = 0; i < groupEvents.length; i++) {
+          (groupEvents[i] as any).position = i;
+          (groupEvents[i] as any).totalOverlapped = groupEvents.length;
         }
       } else {
-        (eventosGrupo[0] as any).posicao = 0;
-        (eventosGrupo[0] as any).totalSobrepostos = 1;
+        (groupEvents[0] as any).position = 0;
+        (groupEvents[0] as any).totalOverlapped = 1;
       }
     }
   }
 
-  private verificarSobreposicao(
-    evento1: ICalendarioEvento,
-    evento2: ICalendarioEvento
+  private checkOverlap(
+    event1: ICalendarEvent,
+    event2: ICalendarEvent
   ): boolean {
-    const inicio1 = this.converterHoraParaMinutos(evento1.horaInicio);
-    const fim1 = this.converterHoraParaMinutos(evento1.horaFim);
-    const inicio2 = this.converterHoraParaMinutos(evento2.horaInicio);
-    const fim2 = this.converterHoraParaMinutos(evento2.horaFim);
+    const start1 = this.convertTimeToMinutes(event1.startTime);
+    const end1 = this.convertTimeToMinutes(event1.endTime);
+    const start2 = this.convertTimeToMinutes(event2.startTime);
+    const end2 = this.convertTimeToMinutes(event2.endTime);
 
-    return inicio1 < fim2 && fim1 > inicio2;
+    return start1 < end2 && end1 > start2;
   }
 
-  private converterHoraParaMinutos(hora: string): number {
-    const [h, m] = hora.split(':').map((n) => parseInt(n, 10));
+  private convertTimeToMinutes(time: string): number {
+    const [h, m] = time.split(':').map((n) => parseInt(n, 10));
     return h * 60 + (m || 0);
   }
 
-  private obterPrimeiroDiaSemana(data: Date): Date {
-    const primeiroDia = new Date(data);
-    primeiroDia.setDate(data.getDate() - data.getDay());
-    return primeiroDia;
+  private getFirstDayOfWeek(date: Date): Date {
+    const firstDay = new Date(date);
+    firstDay.setDate(date.getDate() - date.getDay());
+    return firstDay;
   }
 
-  private filtrarEventosDoDia(dia: Date) {
-    return this.eventos.filter((evento) => {
-      const dataEvento = new Date(evento.data + 'T00:00:00');
-      return dataEvento.toDateString() === dia.toDateString();
+  private filterEventsOfDay(day: Date) {
+    return this.events.filter((event) => {
+      const eventDate = new Date(event.date + 'T00:00:00');
+      return eventDate.toDateString() === day.toDateString();
     });
   }
 
-  verificarDiaMarcado(data: string): boolean {
-    return this.diasMarcados.includes(data);
+  checkMarkedDay(date: string): boolean {
+    return this.markedDays.includes(date);
   }
 
-  irParaSemanaAnterior() {
-    this.dataAtual.setDate(this.dataAtual.getDate() - 7);
-    this.configurarDiasSemana();
-    this.emitirMudancaDeMes();
+  goPreviousWeek() {
+    this.currentDate.setDate(this.currentDate.getDate() - 7);
+    this.configureDaysOfWeek();
+    this.emitMonthChange();
   }
 
-  irParaSemanaAtual() {
-    this.dataAtual = new Date();
-    this.configurarDiasSemana();
-    this.emitirMudancaDeMes();
+  goCurrentWeek() {
+    this.currentDate = new Date();
+    this.configureDaysOfWeek();
+    this.emitMonthChange();
   }
 
-  irParaSemanaSeguinte() {
-    this.dataAtual.setDate(this.dataAtual.getDate() + 7);
-    this.configurarDiasSemana();
-    this.emitirMudancaDeMes();
+  goNextWeek() {
+    this.currentDate.setDate(this.currentDate.getDate() + 7);
+    this.configureDaysOfWeek();
+    this.emitMonthChange();
   }
 
-  obterEstiloEvento(evento: any) {
-    const horaInicio = parseInt(evento.horaInicio.split(':')[0], 10);
-    const minutosInicio = parseInt(evento.horaInicio.split(':')[1], 10) || 0;
-    const horaFim = parseInt(evento.horaFim.split(':')[0], 10);
-    const minutosFim = parseInt(evento.horaFim.split(':')[1], 10) || 0;
+  getEventStyle(event: any) {
+    const startTime = parseInt(event.startTime.split(':')[0], 10);
+    const minutesStart = parseInt(event.startTime.split(':')[1], 10) || 0;
+    const endTime = parseInt(event.endTime.split(':')[0], 10);
+    const minutesEnd = parseInt(event.endTime.split(':')[1], 10) || 0;
 
-    const horaMinima = this.periodoDia?.inicio || 0;
+    const minHour = this.dayPeriod?.start || 0;
 
-    const topoRelativo = horaInicio - horaMinima + minutosInicio / 60;
+    const topoRelativo = startTime - horaMinima + minutosInicio / 60;
     const topo = topoRelativo * 50;
 
     const duracaoHoras =
-      horaFim - horaInicio + (minutosFim - minutosInicio) / 60;
+      endTime - startTime + (minutosFim - minutosInicio) / 60;
     const altura = duracaoHoras * 50;
 
     const largura = 100 / (evento.totalSobrepostos || 1);
@@ -270,7 +261,7 @@ export class VisualizacaoSemanalComponent implements OnInit, OnChanges {
     return {
       top: `${topo}px`,
       height: `${altura}px`,
-      backgroundColor: evento.cor || '#007bff',
+      backgroundColor: evento.color || '#007bff',
       color: '#fff',
       borderRadius: '4px',
       padding: '5px',
@@ -280,8 +271,8 @@ export class VisualizacaoSemanalComponent implements OnInit, OnChanges {
     };
   }
 
-  adicionarEvento(data: Date, horaInicio: string) {
-    this.cliqueAdicionarEvento.emit({ data, horaInicio });
+  adicionarEvento(data: Date, startTime: string) {
+    this.cliqueAdicionarEvento.emit({ data, startTime });
   }
 
   verificarMesmoDia(dia: string): boolean {
