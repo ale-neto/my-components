@@ -6,29 +6,40 @@ import {
   OnInit,
   Output,
   SimpleChanges,
-} from '@angular/colore';
+} from '@angular/core';
 import { ICalendarEvent } from '../interfaces';
 import { CommonModule } from '@angular/common';
 
 @Component({
   standalone: true,
   imports: [CommonModule],
-  selector: 'app-visualizacao-semanal',
-  templateUrl: './semana.html',
+  selector: 'app-week-view',
+  templateUrl: './week.html',
 })
-export class VisualizacaoSemanalComponent implements OnInit, OnChanges {
-  @Input() eventos: ICalendarEvent[] = [];
-  @Input() periodoMarcadoParaEventos?: { dataInicial: string; dataFim: string };
-  @Input() periodoDia: { inicio: number; fim: number; intervalo?: number } = {
-    inicio: 0,
-    fim: 23,
-    intervalo: 60,
+export class WeekViewComponent implements OnInit, OnChanges {
+  @Input() events: ICalendarEvent[] = [];
+  @Input() markedPeriod?: { startDate: string; endDate: string };
+
+  @Input() dayPeriod: { start: number; end: number; interval?: number } = {
+    start: 0,
+    end: 23,
+    interval: 60,
   };
-  @Output() cliqueAdicionarEvento = new EventEmitter<{
-    data: Date;
+  @Output() clickAddEvent = new EventEmitter<{
+    date: Date;
     startTime: string;
   }>();
-  @Output() cliqueVisualizarEvento = new EventEmitter<any>();
+  @Output() clickViewEvent = new EventEmitter<any>();
+  @Output() monthChanged = new EventEmitter<{ month: string; year: number }>();
+
+  daysOfWeek: { date: Date; events: ICalendarEvent[] }[] = [];
+  markedDays: string[] = [];
+  hours: string[] = [];
+  currentDay: string = '';
+  currentDate: Date = new Date();
+  menuVisible: boolean = false;
+  selectedEvent: any;
+  menuPosition = { top: '0px', left: '0px' };
 
   constructor() {
     this.hours = this.generateHours(
@@ -42,9 +53,7 @@ export class VisualizacaoSemanalComponent implements OnInit, OnChanges {
     const { startDate, endDate } = this.markedPeriod || {};
     const now = new Date();
     this.currentDay = now.toISOString().split('T')[0];
-    this.currentDate = startDate
-      ? new Date(startDate + 'T00:00:00')
-      : now;
+    this.currentDate = startDate ? new Date(startDate + 'T00:00:00') : now;
 
     if (startDate && endDate) {
       this.markDaysBetween({ startDate, endDate });
@@ -248,57 +257,60 @@ export class VisualizacaoSemanalComponent implements OnInit, OnChanges {
 
     const minHour = this.dayPeriod?.start || 0;
 
-    const topoRelativo = startTime - horaMinima + minutosInicio / 60;
-    const topo = topoRelativo * 50;
+    const relativeTop = startTime - minHour + minutesStart / 60;
+    const top = relativeTop * 50;
 
-    const duracaoHoras =
-      endTime - startTime + (minutosFim - minutosInicio) / 60;
-    const altura = duracaoHoras * 50;
+    const durationHours = endTime - startTime + (minutesEnd - minutesStart) / 60;
+    const height = durationHours * 50;
 
-    const largura = 100 / (evento.totalSobrepostos || 1);
-    const esquerda = (evento.posicao || 0) * largura;
+    const width = 100 / (event.totalOverlapped || 1);
+    const left = (event.position || 0) * width;
 
     return {
-      top: `${topo}px`,
-      height: `${altura}px`,
-      backgroundColor: evento.color || '#007bff',
+      top: `${top}px`,
+      height: `${height}px`,
+      backgroundColor: event.color || '#007bff',
       color: '#fff',
       borderRadius: '4px',
       padding: '5px',
       boxSizing: 'border-box',
-      width: `${largura}%`,
-      left: `${esquerda}%`,
+      width: `${width}%`,
+      left: `${left}%`,
     };
   }
 
-  adicionarEvento(data: Date, startTime: string) {
-    this.cliqueAdicionarEvento.emit({ data, startTime });
+  addEvent(date: Date, startTime: string) {
+    this.clickAddEvent.emit({ date, startTime });
   }
 
-  verificarMesmoDia(dia: string): boolean {
-    return dia === this.diaAtual;
+  isSameDay(day: string): boolean {
+    return day === this.currentDay;
   }
 
-  visualizarEvento(evento: any) {
-    this.cliqueVisualizarEvento.emit(evento);
+  viewEvent(event: any) {
+    this.clickViewEvent.emit(event);
   }
 
-  abrirMenu(event: MouseEvent, evento: any) {
-    event.preventDefault();
-    this.menuVisivel = true;
-    this.eventoSelecionado = evento;
-    this.posicaoMenu = {
-      top: event.clientY + 'px',
-      left: event.clientX + 'px',
-    };
+  openMenu(event: MouseEvent, selectedEvent: any) {
+    event.stopPropagation();
+    this.menuVisible = true;
+    this.selectedEvent = event;
+    const element = event.currentTarget as HTMLElement;
+    if (element) {
+      const rect = element.getBoundingClientRect();
+      this.menuPosition = {
+        top: `${rect.top + window.scrollY}px`,
+        left: `${rect.left + window.scrollX}px`
+      };
+    }
   }
 
-  executarAcao(callback: (evento: any) => void) {
-    callback(this.eventoSelecionado);
-    this.menuVisivel = false;
+  executeAction(callback: (selectedEvent: any) => void) {
+    callback(this.selectedEvent);
+    this.menuVisible = false;
   }
 
-  fecharMenu() {
-    this.menuVisivel = false;
+  closeMenu() {
+    this.menuVisible = false;
   }
 }

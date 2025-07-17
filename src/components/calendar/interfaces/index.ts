@@ -1,1 +1,1 @@
-export * from './month.interface';
+export * from './calendar.interface';

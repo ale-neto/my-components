@@ -10,9 +10,9 @@ import {
   SimpleChanges,
   ViewChild,
 } from '@angular/core';
-import { ICalendarioEvento } from './interfaces';
+import { ICalendarEvent } from './interfaces';
 import { VisualizacaoMensalComponent } from './mes';
-import { VisualizacaoSemanalComponent } from './semana';
+import { WeekViewComponent } from './semana';
 
 @Component({
   standalone: false,
@@ -24,10 +24,10 @@ import { VisualizacaoSemanalComponent } from './semana';
 export class CalendarioComponent implements OnChanges, OnInit {
   @ViewChild(VisualizacaoMensalComponent)
   mesComponent!: VisualizacaoMensalComponent;
-  @ViewChild(VisualizacaoSemanalComponent)
-  semanaComponent!: VisualizacaoSemanalComponent;
+  @ViewChild(WeekViewComponent)
+  semanaComponent!: WeekViewComponent;
   @Input() viewMode: 'mes' | 'semana' = 'semana';
-  @Input() eventos: ICalendarioEvento[] = [];
+  @Input() eventos: ICalendarEvent[] = [];
   @Input() desabilitarAdicionarEvento = false;
   @Input() desabilitarIrParaProximoMes = false;
   @Input() desabilitarIrParaMesAnterior = false;
@@ -39,7 +39,7 @@ export class CalendarioComponent implements OnChanges, OnInit {
   @Input() periodoMarcadoParaEventos!: { dataInicial: string; dataFim: string };
   @Input() acoesEvento: { nome: string; metodo: (evento: any) => void }[] = [];
   @Output() cliqueAdicionarEvento = new EventEmitter<{ data: Date }>();
-  @Output() cliqueVisualizarEvento = new EventEmitter<ICalendarioEvento>();
+  @Output() cliqueVisualizarEvento = new EventEmitter<ICalendarEvent>();
   mesAtual: string = '';
   anoAtual: number = 0;
 
@@ -81,11 +81,11 @@ export class CalendarioComponent implements OnChanges, OnInit {
   }
 
   goToPreviousWeek() {
-    this.semanaComponent.irParaSemanaAnterior();
+    this.semanaComponent.goPreviousWeek();
   }
 
   goToNextWeek() {
-    this.semanaComponent.irParaSemanaSeguinte();
+    this.semanaComponent.goNextWeek();
   }
 
   goToPreviousMonth() {
@@ -97,7 +97,7 @@ export class CalendarioComponent implements OnChanges, OnInit {
   }
 
   goToCurrentWeek() {
-    this.semanaComponent.irParaSemanaAtual();
+    this.semanaComponent.goCurrentWeek();
   }
 
   goToCurrentMonth() {
