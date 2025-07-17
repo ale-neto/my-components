@@ -3,8 +3,8 @@ import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CalendarioComponent } from './calendario.component';
 import { VisualizacaoMensalComponent } from './mes';
-import { VisualizacaoSemanalComponent } from './semana';
 import { CalendarioHeaderComponent } from './header';
+import { WeekViewComponent } from './semana';
 
 @NgModule({
   declarations: [CalendarioComponent],
@@ -12,7 +12,7 @@ import { CalendarioHeaderComponent } from './header';
     CommonModule,
     FormsModule,
     CalendarioHeaderComponent,
-    VisualizacaoSemanalComponent,
+    WeekViewComponent,
     VisualizacaoMensalComponent
   ],
   exports: [CalendarioComponent],

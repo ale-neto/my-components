@@ -3,27 +3,27 @@
     <div class="w-12 lg:w-16"></div>
 
     <div
-      *ngFor="let dia of diasSemana"
+      *ngFor="let day of daysOfWeek"
       class="flex-1 text-center bg-gray-50 dark:bg-gray-800 mx-px">
 
       <div
         class="text-xs py-2 px-1 font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wide"
-        [class]="verificarMesmoDia((dia.data | date : 'yyyy-MM-dd') || '') ?
+        [class]="markedDays.includes((day.date | date : 'yyyy-MM-dd') || '') ?
           'bg-green-500 text-white' :
-          verificarDiaMarcado((dia.data | date : 'yyyy-MM-dd') || '') ?
+          markedDays.includes((day.date | date : 'yyyy-MM-dd') || '') ?
           'bg-orange-500 text-white' :
           'bg-gray-50 dark:bg-gray-800'">
-        {{ dia.data | date : "EEE" | uppercase }}
+        {{ day.date | date : "EEE" | uppercase }}
       </div>
 
       <div
         class="text-lg font-semibold py-2"
-        [class]="verificarMesmoDia((dia.data | date : 'yyyy-MM-dd') || '') ?
+        [class]="markedDays.includes((day.date | date : 'yyyy-MM-dd') || '') ?
           'bg-green-500 text-white' :
-          verificarDiaMarcado((dia.data | date : 'yyyy-MM-dd') || '') ?
+          markedDays.includes((day.date | date : 'yyyy-MM-dd') || '') ?
           'bg-orange-500 text-white' :
           'text-gray-600 dark:text-white'">
-        {{ dia.data | date : "dd" }}
+        {{ day.date | date : "dd" }}
       </div>
     </div>
   </div>
@@ -31,41 +31,39 @@
   <div class="flex flex-grow min-h-0">
     <div class="w-12 lg:w-16 flex flex-col border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 sticky left-0 z-10">
       <div
-        *ngFor="let hora of horas"
+        *ngFor="let hour of hours"
         class="h-12 flex items-center justify-center border-t border-gray-100 dark:border-gray-700 text-xs text-gray-600 dark:text-gray-400 font-medium">
-        {{ hora }}
+        {{ hour }}
       </div>
     </div>
 
     <div
-      *ngFor="let dia of diasSemana"
+      *ngFor="let day of daysOfWeek"
       class="flex-1 relative border-l border-gray-200 dark:border-gray-700">
 
       <div class="relative h-full">
         <div
-          *ngFor="let hora of horas"
+          *ngFor="let hour of hours"
           class="h-12 border-t border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-900 cursor-pointer
                  hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200
                  active:bg-gray-100 dark:active:bg-gray-700"
-          (click)="adicionarEvento(dia.data, hora)">
+          (click)="addEvent(day.date, hour)">
         </div>
 
         <div
-          *ngFor="let evento of dia.eventos"
+          *ngFor="let event of day.events"
           class="absolute bg-blue-600 hover:bg-blue-700 text-white rounded-md p-2 shadow-md
                  hover:shadow-lg hover:scale-105 transition-all duration-200 cursor-pointer
                  overflow-hidden z-20"
-          [ngStyle]="obterEstiloEvento(evento)"
-          (click)="acoesEvento?.length ?
-            abrirMenu($event, evento) :
-            cliqueVisualizarEvento.emit(evento)">
+          [ngStyle]="getEventStyle(event)"
+          (click)="clickViewEvent.emit(event)">
 
           <div class="font-semibold text-xs mb-1 truncate leading-tight">
-            {{ evento.titulo }}
+            {{ event.title }}
           </div>
 
           <div class="text-xs opacity-90 leading-tight">
-            {{ evento.horaInicio }} - {{ evento.horaFim }}
+            {{ event.startTime }} - {{ event.endTime }}
           </div>
         </div>
       </div>
@@ -73,18 +71,18 @@
   </div>
 
   <div
-    *ngIf="menuVisivel"
+    *ngIf="menuVisible"
     class="fixed bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600
            shadow-lg rounded-md py-1 z-50 min-w-32"
-    [ngStyle]="posicaoMenu"
-    (mouseleave)="fecharMenu()">
+    [ngStyle]="menuPosition"
+    (mouseleave)="menuVisible = false">
 
     <div
       class="px-3 py-2 text-sm text-gray-700 dark:text-gray-200 cursor-pointer
              hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-150"
-      *ngFor="let acao of acoesEvento"
-      (click)="executarAcao(acao.metodo)">
-      {{ acao.nome }}
+      *ngFor="let action of actions"
+      (click)="actionMethod(action.method)">
+      {{ action.name }}
     </div>
   </div>
 </div>

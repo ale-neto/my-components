@@ -1,1 +1,1 @@
-export * from './semana';
+export * from './week';

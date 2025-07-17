@@ -9,17 +9,12 @@
 >
 </app-header>
 <ng-container *ngIf="viewMode === 'semana'">
-  <app-visualizacao-semanal
+  <app-week-view
     #semanaComponent
-    [eventos]="eventos"
-    [periodoDia]="configPeriodoDiaSemana"
-    [acoesEvento]="acoesEvento"
-    [periodoMarcadoParaEventos]="periodoMarcadoParaEventos"
-    (cliqueAdicionarEvento)="cliqueAdicionarEvento.next($event)"
-    (cliqueVisualizarEvento)="cliqueVisualizarEvento.next($event)"
-    (mesMudou)="atualizarMes($event)"
+    [events]="eventos"
+
   >
-  </app-visualizacao-semanal>
+  </app-week-view>
 </ng-container>
 
 <!-- [mesAtual]="mesAtual"
