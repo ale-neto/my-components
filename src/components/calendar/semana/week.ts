@@ -25,12 +25,15 @@ export class WeekViewComponent implements OnInit, OnChanges {
     end: 23,
     interval: 60,
   };
+  @Input() actions: { name: string; method: (event: any) => void }[] = [];
   @Output() clickAddEvent = new EventEmitter<{
     date: Date;
     startTime: string;
   }>();
   @Output() clickViewEvent = new EventEmitter<any>();
   @Output() monthChanged = new EventEmitter<{ month: string; year: number }>();
+
+
 
   daysOfWeek: { date: Date; events: ICalendarEvent[] }[] = [];
   markedDays: string[] = [];

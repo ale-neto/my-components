@@ -13,7 +13,7 @@ import {
   Output,
   SimpleChanges,
 } from '@angular/core';
-import { ICalendarioEvento } from '../interfaces';
+import { ICalendarEvent } from '../interfaces';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -27,14 +27,14 @@ import { FormsModule } from '@angular/forms';
 export class VisualizacaoMensalComponent
   implements OnInit, OnChanges, OnDestroy
 {
-  @Input() eventos: Array<ICalendarioEvento> = [];
+  @Input() eventos: Array<ICalendarEvent> = [];
   @Input() desabilitarAdicionarEvento = false;
   @Input() desabilitarIrParaProximoMes = false;
   @Input() desabilitarIrParaMesAnterior = false;
   @Input() dataInicial?: string;
   @Input() periodoMarcadoParaEventos?: { dataInicial: string; dataFim: string };
   @Output() cliqueAdicionarEvento = new EventEmitter<{ data: Date }>();
-  @Output() cliqueVisualizarEvento = new EventEmitter<ICalendarioEvento>();
+  @Output() cliqueVisualizarEvento = new EventEmitter<ICalendarEvent>();
   @Output() mesMudou = new EventEmitter<{ mes: string; ano: number }>();
   @Input() acoesEvento: { nome: string; metodo: (evento: any) => void }[] = [];
   menuVisivel = false;
@@ -192,9 +192,9 @@ export class VisualizacaoMensalComponent
     this.cliqueAdicionarEvento.emit({ data });
   }
 
-  obterEventosDoDia(dia: string): ICalendarioEvento[] {
+  obterEventosDoDia(dia: string): ICalendarEvent[] {
     return this.eventos.filter(
-      (evento) => this.normalizarData(evento.data) === this.normalizarData(dia)
+      (evento) => this.normalizarData(evento.date) === this.normalizarData(dia)
     );
   }
 
