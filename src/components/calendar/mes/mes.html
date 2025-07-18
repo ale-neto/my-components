@@ -27,7 +27,7 @@
         <div
           *ngFor="let evento of obterEventosDoDia(dia) | slice : 0 : 3"
           class="evento-calendario"
-          [ngStyle]="obterEstiloDoEvento(evento.cor)"
+          [ngStyle]="obterEstiloDoEvento(evento.color)"
           (click)="
             acoesEvento?.length
               ? abrirMenu($event, evento)
@@ -35,10 +35,10 @@
           "
         >
           <div class="texto-limitado">
-            <strong>{{ evento.titulo }}</strong>
+            <strong>{{ evento.title }}</strong>
           </div>
           <div>
-            <small>{{ evento.horaInicio }} - {{ evento.horaFim }}</small>
+            <small>{{ evento.startTime }} - {{ evento.endTime }}</small>
           </div>
         </div>
 
@@ -58,7 +58,7 @@
           <div
             *ngFor="let evento of obterEventosDoDia(dia)"
             class="evento-popover"
-            [ngStyle]="obterEstiloDoEvento(evento.cor)"
+            [ngStyle]="obterEstiloDoEvento(evento.color)"
             (click)="
               acoesEvento?.length
                 ? abrirMenu($event, evento)
@@ -66,10 +66,10 @@
             "
           >
             <div>
-              <strong>{{ evento.titulo }}</strong>
+              <strong>{{ evento.title }}</strong>
             </div>
             <div>
-              <small>{{ evento.horaInicio }} - {{ evento.horaFim }}</small>
+              <small>{{ evento.startTime }} - {{ evento.endTime }}</small>
             </div>
           </div>
           <button class="btn btn-primary" (click)="fecharPopover($event)">
