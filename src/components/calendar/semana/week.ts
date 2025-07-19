@@ -18,11 +18,10 @@ import { CommonModule } from '@angular/common';
 })
 export class WeekViewComponent implements OnInit, OnChanges {
   @Input() events: ICalendarEvent[] = [];
-  @Input() markedPeriod?: { startDate: string; endDate: string };
-
-  @Input() dayPeriod: { start: number; end: number; interval?: number } = {
-    start: 0,
-    end: 23,
+  @Input() enableOnlyPeriodDate?: { startDate: string; endDate: string };
+  @Input() enableOnlyPeriodTime: { startTime: number; endTime: number; interval?: number } = {
+    startTime: 0,
+    endTime: 23,
     interval: 60,
   };
   @Input() actions: { name: string; method: (event: any) => void }[] = [];
@@ -32,8 +31,6 @@ export class WeekViewComponent implements OnInit, OnChanges {
   }>();
   @Output() clickViewEvent = new EventEmitter<any>();
   @Output() monthChanged = new EventEmitter<{ month: string; year: number }>();
-
-
 
   daysOfWeek: { date: Date; events: ICalendarEvent[] }[] = [];
   markedDays: string[] = [];
@@ -46,14 +43,14 @@ export class WeekViewComponent implements OnInit, OnChanges {
 
   constructor() {
     this.hours = this.generateHours(
-      this.dayPeriod.start,
-      this.dayPeriod.end,
-      this.dayPeriod.interval || 60
+      this.enableOnlyPeriodTime.startTime,
+      this.enableOnlyPeriodTime.endTime,
+      this.enableOnlyPeriodTime.interval || 60
     );
   }
 
   ngOnInit() {
-    const { startDate, endDate } = this.markedPeriod || {};
+    const { startDate, endDate } = this.enableOnlyPeriodDate || {};
     const now = new Date();
     this.currentDay = now.toISOString().split('T')[0];
     this.currentDate = startDate ? new Date(startDate + 'T00:00:00') : now;
@@ -68,18 +65,18 @@ export class WeekViewComponent implements OnInit, OnChanges {
     if (changes['events']) {
       this.configureDaysOfWeek();
     }
-    if (changes['dayPeriod']) {
-      const period = changes['dayPeriod'].currentValue;
+    if (changes['enableOnlyPeriodTime']) {
+      const period = changes['enableOnlyPeriodTime'].currentValue;
       this.hours = this.generateHours(
-        period?.start,
-        period?.end,
+        period?.startTime,
+        period?.endTime,
         period?.interval || 60
       );
     }
 
-    if (changes['markedPeriod']) {
+    if (changes['enableOnlyPeriodDate']) {
       const { startDate, endDate } =
-        changes['markedPeriod'].currentValue || {};
+        changes['enableOnlyPeriodDate'].currentValue || {};
       if (startDate && endDate) {
         this.markDaysBetween({ startDate, endDate });
       }
@@ -258,7 +255,7 @@ export class WeekViewComponent implements OnInit, OnChanges {
     const endTime = parseInt(event.endTime.split(':')[0], 10);
     const minutesEnd = parseInt(event.endTime.split(':')[1], 10) || 0;
 
-    const minHour = this.dayPeriod?.start || 0;
+    const minHour = this.enableOnlyPeriodTime?.startTime || 0;
 
     const relativeTop = startTime - minHour + minutesStart / 60;
     const top = relativeTop * 50;
