@@ -29,7 +29,7 @@ export class WeekViewComponent implements OnInit, OnChanges {
     date: Date;
     startTime: string;
   }>();
-  @Output() clickViewEvent = new EventEmitter<any>();
+  @Output() clickViewEvent = new EventEmitter<ICalendarEvent>();
   @Output() monthChanged = new EventEmitter<{ month: string; year: number }>();
 
   daysOfWeek: { date: Date; events: ICalendarEvent[] }[] = [];
