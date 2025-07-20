@@ -49,6 +49,8 @@ export interface IEventStyle {
   overflow: string;
   textOverflow: string;
   whiteSpace: string;
+  border?: string;
+  boxShadow?: string;
 }
 
 export interface ICalendarAction {
