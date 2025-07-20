@@ -7,7 +7,7 @@ import {
   Output,
   SimpleChanges,
 } from '@angular/core';
-import { ICalendarEvent } from '../interfaces';
+import { ICalendarEvent, IDateRange, ITimeRange, ICalendarAction, IAddEventData, IDayWithEvents } from '../interfaces';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -18,21 +18,18 @@ import { CommonModule } from '@angular/common';
 })
 export class WeekViewComponent implements OnInit, OnChanges {
   @Input() events: ICalendarEvent[] = [];
-  @Input() enableOnlyPeriodDate?: { startDate: string; endDate: string };
-  @Input() enableOnlyPeriodTime: { startTime: number; endTime: number; interval?: number } = {
+  @Input() enableOnlyPeriodDate?: IDateRange;
+  @Input() enableOnlyPeriodTime: ITimeRange = {
     startTime: 0,
     endTime: 23,
     interval: 60,
   };
-  @Input() actions: { name: string; method: (event: any) => void }[] = [];
-  @Output() clickAddEvent = new EventEmitter<{
-    date: Date;
-    startTime: string;
-  }>();
+  @Input() actions: ICalendarAction[] = [];
+  @Output() clickAddEvent = new EventEmitter<IAddEventData>();
   @Output() clickViewEvent = new EventEmitter<ICalendarEvent>();
   @Output() monthChanged = new EventEmitter<{ month: string; year: number }>();
 
-  daysOfWeek: { date: Date; events: ICalendarEvent[] }[] = [];
+  daysOfWeek: IDayWithEvents[] = [];
   markedDays: string[] = [];
   hours: string[] = [];
   currentDay: string = '';

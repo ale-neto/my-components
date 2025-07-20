@@ -198,7 +198,7 @@ export class VisualizacaoMensalComponent
     );
   }
 
-  obterEstiloDoEvento(cor: string): Record<string, string> {
+  obterEstiloDoEvento(cor: any  ): Record<string, string> {
     return { backgroundColor: cor };
   }
 
