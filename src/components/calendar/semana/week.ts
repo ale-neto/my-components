@@ -1,147 +1,377 @@
+// week-view.component.ts (Optimized version with existing interfaces)
 import {
   Component,
   EventEmitter,
   Input,
   OnChanges,
   OnInit,
+  OnDestroy,
   Output,
   SimpleChanges,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  HostListener,
 } from '@angular/core';
-import { ICalendarEvent, IDateRange, ITimeRange, ICalendarAction, IAddEventData, IDayWithEvents } from '../interfaces';
 import { CommonModule } from '@angular/common';
+import { Subject, takeUntil } from 'rxjs';
+
+// Import existing interfaces from your project
+import {
+  ICalendarEvent,
+  IDateRange,
+  ITimeRange,
+  ICalendarAction,
+  IAddEventData,
+  IDayWithEvents
+} from '../interfaces';
+
+// Import our improved services
+import { CalendarUtilsService } from '../services/calendar-utils';
+import { DateUtilsService } from '../services/date-utils';
+import { EventStyleService } from '../services/event-style';
+import { WeekViewStateService } from '../services/week-view-state';
+
+// Constants
+const CALENDAR_CONSTANTS = {
+  DAYS_IN_WEEK: 7,
+  HOUR_HEIGHT_PX: 48, // Changed to match Tailwind's h-12 (48px)
+  MINUTES_IN_HOUR: 60,
+  MS_IN_DAY: 24 * 60 * 60 * 1000,
+  DEFAULT_INTERVAL: 60,
+  MIN_HOUR: 0,
+  MAX_HOUR: 23,
+} as const;
+
+// Extended event interface for internal use
+interface ExtendedCalendarEvent extends ICalendarEvent {
+  position?: number;
+  totalOverlapped?: number;
+}
+
+// Menu position interface
+interface MenuPosition {
+  top: string;
+  left: string;
+}
+
+// Month change event interface
+interface MonthChangeEvent {
+  month: string;
+  year: number;
+}
 
 @Component({
   standalone: true,
   imports: [CommonModule],
   selector: 'app-week-view',
   templateUrl: './week.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [WeekViewStateService] // Provide state service at component level
 })
-export class WeekViewComponent implements OnInit, OnChanges {
+export class WeekViewComponent implements OnInit, OnChanges, OnDestroy {
+
+  // Inputs (maintaining compatibility with existing interface)
   @Input() events: ICalendarEvent[] = [];
   @Input() enableOnlyPeriodDate?: IDateRange;
   @Input() enableOnlyPeriodTime: ITimeRange = {
     startTime: 0,
     endTime: 23,
-    interval: 60,
+    interval: CALENDAR_CONSTANTS.DEFAULT_INTERVAL,
   };
   @Input() actions: ICalendarAction[] = [];
+
+  // Outputs (maintaining compatibility)
   @Output() clickAddEvent = new EventEmitter<IAddEventData>();
   @Output() clickViewEvent = new EventEmitter<ICalendarEvent>();
-  @Output() monthChanged = new EventEmitter<{ month: string; year: number }>();
+  @Output() monthChanged = new EventEmitter<MonthChangeEvent>();
 
+  // Component state
   daysOfWeek: IDayWithEvents[] = [];
   markedDays: string[] = [];
   hours: string[] = [];
   currentDay: string = '';
   currentDate: Date = new Date();
   menuVisible: boolean = false;
-  selectedEvent: any;
-  menuPosition = { top: '0px', left: '0px' };
+  selectedEvent: ICalendarEvent | null = null;
+  menuPosition: MenuPosition = { top: '0px', left: '0px' };
 
-  constructor() {
-    this.hours = this.generateHours(
-      this.enableOnlyPeriodTime.startTime,
-      this.enableOnlyPeriodTime.endTime,
-      this.enableOnlyPeriodTime.interval || 60
-    );
+  private destroy$ = new Subject<void>();
+
+  constructor(
+    private cdr: ChangeDetectorRef,
+    public calendarUtils: CalendarUtilsService,
+    private dateUtils: DateUtilsService,
+    private eventStyleService: EventStyleService,
+    private stateService: WeekViewStateService
+  ) {
+    this.initializeHours();
   }
 
-  ngOnInit() {
-    const { startDate, endDate } = this.enableOnlyPeriodDate || {};
-    const now = new Date();
-    this.currentDay = now.toISOString().split('T')[0];
-    this.currentDate = startDate ? new Date(startDate + 'T00:00:00') : now;
-
-    if (startDate && endDate) {
-      this.markDaysBetween({ startDate, endDate });
-    }
-    this.configureDaysOfWeek();
+  ngOnInit(): void {
+    this.initializeComponent();
+    // this.subscribeToStateChanges();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
+    this.handleInputChanges(changes);
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+    this.stateService.destroy();
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: Event): void {
+    if (this.menuVisible && !this.isClickInsideMenu(event)) {
+      this.closeMenu();
+    }
+  }
+
+  // TrackBy functions for performance optimization
+  trackByDate = (index: number, day: IDayWithEvents): string =>
+    this.calendarUtils.formatDateToISO(day.date);
+
+  trackByEvent = (index: number, event: ICalendarEvent): string | number =>
+    event.id || index;
+
+  trackByHour = (index: number, hour: string): string => hour;
+
+  trackByAction = (index: number, action: ICalendarAction): string => action.name;
+
+  // Navigation methods (maintaining existing API)
+  goPreviousWeek(): void {
+    this.currentDate = new Date(this.currentDate.getTime() - (CALENDAR_CONSTANTS.DAYS_IN_WEEK * CALENDAR_CONSTANTS.MS_IN_DAY));
+    this.configureDaysOfWeek();
+    this.emitMonthChange();
+    this.cdr.markForCheck();
+  }
+
+  goCurrentWeek(): void {
+    this.currentDate = new Date();
+    this.configureDaysOfWeek();
+    this.emitMonthChange();
+    this.cdr.markForCheck();
+  }
+
+  goNextWeek(): void {
+    this.currentDate = new Date(this.currentDate.getTime() + (CALENDAR_CONSTANTS.DAYS_IN_WEEK * CALENDAR_CONSTANTS.MS_IN_DAY));
+    this.configureDaysOfWeek();
+    this.emitMonthChange();
+    this.cdr.markForCheck();
+  }
+
+  // Event interaction methods
+  onTimeSlotClick(date: Date, hour: string): void {
+    this.addEvent(date, hour);
+  }
+
+  onTimeSlotDoubleClick(date: Date, hour: string): void {
+    this.addEvent(date, hour);
+  }
+
+  onEventClick(event: ICalendarEvent): void {
+    this.viewEvent(event);
+  }
+
+  onEventRightClick(mouseEvent: MouseEvent, event: ICalendarEvent): void {
+    mouseEvent.preventDefault();
+    this.openMenu(mouseEvent, event);
+  }
+
+  // Public API methods (maintaining compatibility)
+  addEvent(date: Date, startTime: string): void {
+    console.log('addEvent', date, startTime);
+    this.clickAddEvent.emit({ date, startTime });
+  }
+
+  viewEvent(event: ICalendarEvent): void {
+    this.clickViewEvent.emit(event);
+  }
+
+  openMenu(event: MouseEvent, selectedEvent: ICalendarEvent): void {
+    event.stopPropagation();
+    this.menuVisible = true;
+    this.selectedEvent = selectedEvent;
+
+    const position = this.calculateMenuPosition(event);
+    this.menuPosition = position;
+    this.cdr.markForCheck();
+  }
+
+  executeAction(callback: (selectedEvent: ICalendarEvent) => void): void {
+    if (this.selectedEvent) {
+      callback(this.selectedEvent);
+    }
+    this.closeMenu();
+  }
+
+  closeMenu(): void {
+    this.menuVisible = false;
+    this.selectedEvent = null;
+    this.cdr.markForCheck();
+  }
+
+  // Utility methods for template
+  checkMarkedDay(date: string): boolean {
+    return this.markedDays.includes(date);
+  }
+
+  isSameDay(day: string): boolean {
+    return day === this.currentDay;
+  }
+
+  isToday(date: Date): boolean {
+    return this.dateUtils.isToday(date);
+  }
+
+  get hasEventsThisWeek(): boolean {
+    return this.getEventsForCurrentWeek().length > 0;
+  }
+
+  get weekStatusMessage(): string {
+    const eventsCount = this.getEventsForCurrentWeek().length;
+    const weekRange = this.getCurrentWeekRange();
+
+    if (eventsCount === 0) {
+      return `📅 No events this week (${weekRange})`;
+    } else if (eventsCount === 1) {
+      return `📌 1 event this week (${weekRange})`;
+    } else {
+      return `📊 ${eventsCount} events this week (${weekRange})`;
+    }
+  }
+
+
+  getDayName(date: Date): string {
+    return this.dateUtils.getDayOfWeekName(date);
+  }
+
+  getDayNumber(date: Date): number {
+    return date.getDate();
+  }
+
+  getEventStyle(event: ExtendedCalendarEvent): Record<string, string> {
+    return this.eventStyleService.getEventStyle(event, this.enableOnlyPeriodTime);
+  }
+
+  // Accessibility helpers
+  getEventAriaLabel(event: ICalendarEvent): string {
+    return `Event: ${event.title}, from ${event.startTime} to ${event.endTime}`;
+  }
+
+  getTimeSlotAriaLabel(date: Date, hour: string): string {
+    const dayName = this.getDayName(date);
+    const dayNumber = this.getDayNumber(date);
+    return `${dayName}, ${dayNumber} at ${hour}`;
+  }
+
+  getDayAriaLabel(date: Date): string {
+    const dayName = this.getDayName(date);
+    const dayNumber = this.getDayNumber(date);
+    const isCurrentDay = this.isToday(date);
+    return `${dayName}, ${dayNumber}${isCurrentDay ? ' (today)' : ''}`;
+  }
+
+  // Getters for template
+  get currentMonthYear(): MonthChangeEvent {
+    return this.dateUtils.getMonthYearInfo(this.currentDate);
+  }
+
+  get hasEvents(): boolean {
+    return this.events && this.events.length > 0;
+  }
+
+  get hasActions(): boolean {
+    return this.actions && this.actions.length > 0;
+  }
+
+  private getEventsForCurrentWeek(): ICalendarEvent[] {
+    const weekStart = this.calendarUtils.getFirstDayOfWeek(this.currentDate);
+    const weekEnd = this.calendarUtils.addDays(weekStart, 6);
+
+    return this.events.filter(event => {
+      const eventDate = this.dateUtils.safeParseDate(event.date);
+      if (!eventDate) return false;
+      return eventDate >= weekStart && eventDate <= weekEnd;
+    });
+  }
+
+  // Range da semana formatado
+  private getCurrentWeekRange(): string {
+    const weekStart = this.calendarUtils.getFirstDayOfWeek(this.currentDate);
+    const weekEnd = this.calendarUtils.addDays(weekStart, 6);
+
+    if (weekStart.getMonth() === weekEnd.getMonth()) {
+      return `${weekStart.getDate()}-${weekEnd.getDate()} ${weekStart.toLocaleDateString('pt-BR', { month: 'short' })}`;
+    } else {
+      return `${weekStart.getDate()} ${weekStart.toLocaleDateString('pt-BR', { month: 'short' })} - ${weekEnd.getDate()} ${weekEnd.toLocaleDateString('pt-BR', { month: 'short' })}`;
+    }
+  }
+  // Private initialization methods
+  private initializeComponent(): void {
+    const now = new Date();
+    this.currentDay = now.toISOString().split('T')[0];
+
+    if (this.enableOnlyPeriodDate?.startDate) {
+      this.currentDate = new Date(this.enableOnlyPeriodDate.startDate + 'T00:00:00');
+    } else {
+      this.currentDate = new Date(now);
+    }
+
+    if (this.enableOnlyPeriodDate) {
+      this.markDaysBetween(this.enableOnlyPeriodDate);
+    }
+
+    this.configureDaysOfWeek();
+  }
+
+  private initializeHours(): void {
+    this.hours = this.calendarUtils.generateHours(
+      this.enableOnlyPeriodTime.startTime,
+      this.enableOnlyPeriodTime.endTime,
+      this.enableOnlyPeriodTime.interval || CALENDAR_CONSTANTS.DEFAULT_INTERVAL
+    );
+  }
+
+  // private subscribeToStateChanges(): void {
+  //   // If using state service, subscribe to changes here
+  //   // For now, we'll use the component's local state
+  // }
+
+  private handleInputChanges(changes: SimpleChanges): void {
     if (changes['events']) {
       this.configureDaysOfWeek();
     }
+
     if (changes['enableOnlyPeriodTime']) {
-      const period = changes['enableOnlyPeriodTime'].currentValue;
-      this.hours = this.generateHours(
-        period?.startTime,
-        period?.endTime,
-        period?.interval || 60
-      );
+      this.initializeHours();
     }
 
     if (changes['enableOnlyPeriodDate']) {
-      const { startDate, endDate } =
-        changes['enableOnlyPeriodDate'].currentValue || {};
-      if (startDate && endDate) {
-        this.markDaysBetween({ startDate, endDate });
+      const dateRange = changes['enableOnlyPeriodDate'].currentValue;
+      if (dateRange) {
+        this.markDaysBetween(dateRange);
       }
     }
+
+    this.cdr.markForCheck();
   }
 
-  private markDaysBetween({
-    startDate,
-    endDate,
-  }: {
-    startDate: string;
-    endDate: string;
-  }): void {
-    this.markedDays = [];
-
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-
-    const current = new Date(start);
-    while (current <= end) {
-      this.markedDays.push(current.toISOString().split('T')[0]);
-      current.setDate(current.getDate() + 1);
-    }
+  private markDaysBetween(dateRange: IDateRange): void {
+    this.markedDays = this.dateUtils.generateDateRange(dateRange.startDate, dateRange.endDate);
   }
 
-  private emitMonthChange() {
-    const month = this.currentDate.toLocaleString('en-US', { month: 'long' });
-    const currentYear = this.currentDate.getFullYear();
-    const currentMonth = month.charAt(0).toUpperCase() + month.slice(1);
-    this.monthChanged.emit({ month: currentMonth, year: currentYear });
-  }
-
-  private generateHours(startTime = 0, endTime = 23, interval = 60): string[] {
-    const hours: string[] = [];
-
-    startTime = Math.max(0, Math.min(23, startTime));
-    endTime = Math.max(0, Math.min(23, endTime));
-
-    if (startTime > endTime) {
-      [startTime, endTime] = [endTime, startTime];
-    }
-
-    const increment = interval / 60;
-
-    for (let i = startTime; i <= endTime; i += increment) {
-      const hour = Math.floor(i);
-      const minutes = Math.round((i - hour) * 60);
-
-      const hourStr = hour < 10 ? `0${hour}` : `${hour}`;
-      const minutesStr = minutes < 10 ? `0${minutes}` : `${minutes}`;
-
-      hours.push(`${hourStr}:${minutesStr}`);
-    }
-
-    return hours;
-  }
-
-  private configureDaysOfWeek() {
+  private configureDaysOfWeek(): void {
     this.daysOfWeek = [];
-    const firstDayOfWeek = this.getFirstDayOfWeek(this.currentDate);
+    const firstDayOfWeek = this.calendarUtils.getFirstDayOfWeek(this.currentDate);
 
-    for (let i = 0; i < 7; i++) {
-      const currentDate = new Date(firstDayOfWeek);
-      currentDate.setDate(firstDayOfWeek.getDate() + i);
-
+    for (let i = 0; i < CALENDAR_CONSTANTS.DAYS_IN_WEEK; i++) {
+      const currentDate = this.calendarUtils.addDays(firstDayOfWeek, i);
       const eventsOfDay = this.filterEventsOfDay(currentDate);
 
-      this.calculateOverlaps(eventsOfDay);
+      this.calendarUtils.calculateOverlaps(eventsOfDay);
 
       this.daysOfWeek.push({
         date: currentDate,
@@ -150,164 +380,42 @@ export class WeekViewComponent implements OnInit, OnChanges {
     }
   }
 
-  private calculateOverlaps(events: ICalendarEvent[]) {
-    if (!events.length) return;
-
-    const groupedEvents: { [key: string]: ICalendarEvent[] } = {};
-
-    for (const event of events) {
-      let groupFound = false;
-
-      for (const group in groupedEvents) {
-        if (this.checkOverlap(event, groupedEvents[group][0])) {
-          groupedEvents[group].push(event);
-          groupFound = true;
-          break;
+  private filterEventsOfDay(day: Date): ICalendarEvent[] {
+    try {
+      return this.events.filter((event) => {
+        if (!event.date) {
+          console.warn('Event without date found:', event);
+          return false;
         }
-      }
 
-      if (!groupFound) {
-        const newGroupId = `group_${Object.keys(groupedEvents).length}`;
-        groupedEvents[newGroupId] = [event];
-      }
-    }
-
-    for (const group in groupedEvents) {
-      const groupEvents = groupedEvents[group];
-
-      if (groupEvents.length > 1) {
-        groupEvents.sort((a, b) => {
-          return (
-            this.convertTimeToMinutes(a.startTime) -
-            this.convertTimeToMinutes(b.startTime)
-          );
-        });
-
-        for (let i = 0; i < groupEvents.length; i++) {
-          (groupEvents[i] as any).position = i;
-          (groupEvents[i] as any).totalOverlapped = groupEvents.length;
-        }
-      } else {
-        (groupEvents[0] as any).position = 0;
-        (groupEvents[0] as any).totalOverlapped = 1;
-      }
+        const eventDate = this.dateUtils.safeParseDate(event.date);
+        return eventDate && this.dateUtils.isSameDay(eventDate, day);
+      });
+    } catch (error) {
+      console.error('Error filtering events:', error);
+      return [];
     }
   }
 
-  private checkOverlap(
-    event1: ICalendarEvent,
-    event2: ICalendarEvent
-  ): boolean {
-    const start1 = this.convertTimeToMinutes(event1.startTime);
-    const end1 = this.convertTimeToMinutes(event1.endTime);
-    const start2 = this.convertTimeToMinutes(event2.startTime);
-    const end2 = this.convertTimeToMinutes(event2.endTime);
-
-    return start1 < end2 && end1 > start2;
+  private emitMonthChange(): void {
+    const monthYear = this.currentMonthYear;
+    this.monthChanged.emit(monthYear);
   }
 
-  private convertTimeToMinutes(time: string): number {
-    const [h, m] = time.split(':').map((n) => parseInt(n, 10));
-    return h * 60 + (m || 0);
-  }
-
-  private getFirstDayOfWeek(date: Date): Date {
-    const firstDay = new Date(date);
-    firstDay.setDate(date.getDate() - date.getDay());
-    return firstDay;
-  }
-
-  private filterEventsOfDay(day: Date) {
-    return this.events.filter((event) => {
-      const eventDate = new Date(event.date + 'T00:00:00');
-      return eventDate.toDateString() === day.toDateString();
-    });
-  }
-
-  checkMarkedDay(date: string): boolean {
-    return this.markedDays.includes(date);
-  }
-
-  goPreviousWeek() {
-    this.currentDate.setDate(this.currentDate.getDate() - 7);
-    this.configureDaysOfWeek();
-    this.emitMonthChange();
-  }
-
-  goCurrentWeek() {
-    this.currentDate = new Date();
-    this.configureDaysOfWeek();
-    this.emitMonthChange();
-  }
-
-  goNextWeek() {
-    this.currentDate.setDate(this.currentDate.getDate() + 7);
-    this.configureDaysOfWeek();
-    this.emitMonthChange();
-  }
-
-  getEventStyle(event: any) {
-    const startTime = parseInt(event.startTime.split(':')[0], 10);
-    const minutesStart = parseInt(event.startTime.split(':')[1], 10) || 0;
-    const endTime = parseInt(event.endTime.split(':')[0], 10);
-    const minutesEnd = parseInt(event.endTime.split(':')[1], 10) || 0;
-
-    const minHour = this.enableOnlyPeriodTime?.startTime || 0;
-
-    const relativeTop = startTime - minHour + minutesStart / 60;
-    const top = relativeTop * 50;
-
-    const durationHours = endTime - startTime + (minutesEnd - minutesStart) / 60;
-    const height = durationHours * 50;
-
-    const width = 100 / (event.totalOverlapped || 1);
-    const left = (event.position || 0) * width;
-
-    return {
-      top: `${top}px`,
-      height: `${height}px`,
-      backgroundColor: event.color || '#007bff',
-      color: '#fff',
-      borderRadius: '4px',
-      padding: '5px',
-      boxSizing: 'border-box',
-      width: `${width}%`,
-      left: `${left}%`,
-    };
-  }
-
-  addEvent(date: Date, startTime: string) {
-    this.clickAddEvent.emit({ date, startTime });
-  }
-
-  isSameDay(day: string): boolean {
-    return day === this.currentDay;
-  }
-
-  viewEvent(event: any) {
-    this.clickViewEvent.emit(event);
-  }
-
-  openMenu(event: MouseEvent, selectedEvent: any) {
-    event.stopPropagation();
-    this.menuVisible = true;
-    this.selectedEvent = event;
+  private calculateMenuPosition(event: MouseEvent): MenuPosition {
     const element = event.currentTarget as HTMLElement;
     if (element) {
       const rect = element.getBoundingClientRect();
-      this.menuPosition = {
+      return {
         top: `${rect.top + window.scrollY}px`,
         left: `${rect.left + window.scrollX}px`
       };
     }
+    return { top: '0px', left: '0px' };
   }
 
-  executeAction(callback: (selectedEvent: any) => void) {
-    callback(this.selectedEvent);
-    this.menuVisible = false;
-  }
-
-  closeMenu() {
-    this.menuVisible = false;
+  private isClickInsideMenu(event: Event): boolean {
+    const target = event.target as HTMLElement;
+    return target.closest('.context-menu') !== null;
   }
 }
