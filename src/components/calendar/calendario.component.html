@@ -1,4 +1,36 @@
-<app-header
+<div class="min-h-screen bg-gray-100 dark:bg-gray-900 p-4">
+  <div class="max-w-6xl mx-auto">
+
+    <!-- Header simples -->
+    <div class="mb-6 text-center">
+      <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+         Calendário Semanal
+      </h1>
+      <p class="text-gray-600 dark:text-gray-400">
+        Clique em um horário para adicionar evento • Clique em um evento para visualizar
+      </p>
+    </div>
+
+    <!-- Calendário -->
+    <app-week-view
+      [events]="events"
+      [enableOnlyPeriodTime]="timeConfig"
+      [actions]="eventActions"
+      (clickAddEvent)="handleAddEvent($event)"
+      (clickViewEvent)="handleViewEvent($event)"
+      (monthChanged)="handleMonthChange($event)">
+    </app-week-view>
+
+    <!-- Mensagens de feedback -->
+    <div *ngIf="message"
+         class="mt-4 p-3 bg-blue-100 dark:bg-blue-900 border border-blue-300 dark:border-blue-700 rounded-md">
+      <p class="text-blue-800 dark:text-blue-200 text-sm">{{ message }}</p>
+    </div>
+
+  </div>
+</div>
+
+<!-- <app-header
   [viewMode]="viewMode"
   [mesAtual]="mesAtual"
   [anoAtual]="anoAtual"
@@ -7,22 +39,22 @@
   (current)="viewMode === 'semana' ? goToCurrentWeek() : goToCurrentMonth()"
   (next)="viewMode === 'semana' ? goToNextWeek() : goToNextMonth()"
 >
-</app-header>
-<ng-container *ngIf="viewMode === 'semana'">
+</app-header> -->
+<!-- <ng-container *ngIf="viewMode === 'semana'">
   <app-week-view
     #semanaComponent
     [events]="eventos"
 
   >
   </app-week-view>
-</ng-container>
+</ng-container> -->
 
 <!-- [mesAtual]="mesAtual"
     [anoAtual]="anoAtual"
     [desabilitarAdicionarEvento]="desabilitarAdicionarEvento"
     [desabilitarIrParaProximoMes]="desabilitarIrParaProximoMes"
     [desabilitarIrParaMesAnterior]="desabilitarIrParaMesAnterior" -->
-<ng-container *ngIf="viewMode === 'mes'">
+<!-- <ng-container *ngIf="viewMode === 'mes'">
   <app-visualizacao-mensal
     #mesComponent
     [eventos]="eventos"
@@ -36,7 +68,7 @@
     (cliqueVisualizarEvento)="cliqueVisualizarEvento.next($event)"
     (mesMudou)="atualizarMes($event)"
   ></app-visualizacao-mensal>
-</ng-container>
+</ng-container> -->
 
 <!--
 [mesAtual]="mesAtual"

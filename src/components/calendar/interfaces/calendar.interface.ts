@@ -11,7 +11,7 @@ export interface ICalendarEvent {
 
 export interface IDayWithEvents {
   date: Date;
-  events: IExtendedCalendarEvent[];
+  events: ICalendarEvent[];
 }
 
 export interface IEventPosition {
