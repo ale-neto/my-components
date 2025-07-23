@@ -185,10 +185,6 @@ export class CalendarioComponent {
 
   // Handlers dos eventos do calendário
   handleAddEvent(eventData: IAddEventData): void {
-    const dateStr = eventData.date.toLocaleDateString('pt-BR');
-    this.showMessage(`📅 Novo evento em ${dateStr} às ${eventData.startTime}`);
-
-    // Aqui você criaria um novo evento
     const newEvent: ICalendarEvent = {
       id: Date.now().toString(),
       title: 'Novo Evento',
