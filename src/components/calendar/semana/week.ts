@@ -70,7 +70,6 @@ interface MonthChangeEvent {
 })
 export class WeekViewComponent implements OnInit, OnChanges, OnDestroy {
 
-  // Inputs (maintaining compatibility with existing interface)
   @Input() events: ICalendarEvent[] = [];
   @Input() enableOnlyPeriodDate?: IDateRange;
   @Input() enableOnlyPeriodTime: ITimeRange = {
@@ -80,12 +79,10 @@ export class WeekViewComponent implements OnInit, OnChanges, OnDestroy {
   };
   @Input() actions: ICalendarAction[] = [];
 
-  // Outputs (maintaining compatibility)
   @Output() clickAddEvent = new EventEmitter<IAddEventData>();
   @Output() clickViewEvent = new EventEmitter<ICalendarEvent>();
   @Output() monthChanged = new EventEmitter<MonthChangeEvent>();
 
-  // Component state
   daysOfWeek: IDayWithEvents[] = [];
   markedDays: string[] = [];
   hours: string[] = [];
@@ -109,7 +106,6 @@ export class WeekViewComponent implements OnInit, OnChanges, OnDestroy {
 
   ngOnInit(): void {
     this.initializeComponent();
-    // this.subscribeToStateChanges();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -129,7 +125,6 @@ export class WeekViewComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  // TrackBy functions for performance optimization
   trackByDate = (index: number, day: IDayWithEvents): string =>
     this.calendarUtils.formatDateToISO(day.date);
 
@@ -162,7 +157,6 @@ export class WeekViewComponent implements OnInit, OnChanges, OnDestroy {
     this.cdr.markForCheck();
   }
 
-  // Event interaction methods
   onTimeSlotClick(date: Date, hour: string): void {
     this.addEvent(date, hour);
   }
@@ -180,9 +174,7 @@ export class WeekViewComponent implements OnInit, OnChanges, OnDestroy {
     this.openMenu(mouseEvent, event);
   }
 
-  // Public API methods (maintaining compatibility)
   addEvent(date: Date, startTime: string): void {
-    console.log('addEvent', date, startTime);
     this.clickAddEvent.emit({ date, startTime });
   }
 
@@ -213,7 +205,6 @@ export class WeekViewComponent implements OnInit, OnChanges, OnDestroy {
     this.cdr.markForCheck();
   }
 
-  // Utility methods for template
   checkMarkedDay(date: string): boolean {
     return this.markedDays.includes(date);
   }
@@ -256,7 +247,6 @@ export class WeekViewComponent implements OnInit, OnChanges, OnDestroy {
     return this.eventStyleService.getEventStyle(event, this.enableOnlyPeriodTime);
   }
 
-  // Accessibility helpers
   getEventAriaLabel(event: ICalendarEvent): string {
     return `Event: ${event.title}, from ${event.startTime} to ${event.endTime}`;
   }
@@ -274,7 +264,6 @@ export class WeekViewComponent implements OnInit, OnChanges, OnDestroy {
     return `${dayName}, ${dayNumber}${isCurrentDay ? ' (today)' : ''}`;
   }
 
-  // Getters for template
   get currentMonthYear(): MonthChangeEvent {
     return this.dateUtils.getMonthYearInfo(this.currentDate);
   }
@@ -298,7 +287,6 @@ export class WeekViewComponent implements OnInit, OnChanges, OnDestroy {
     });
   }
 
-  // Range da semana formatado
   private getCurrentWeekRange(): string {
     const weekStart = this.calendarUtils.getFirstDayOfWeek(this.currentDate);
     const weekEnd = this.calendarUtils.addDays(weekStart, 6);
@@ -309,7 +297,7 @@ export class WeekViewComponent implements OnInit, OnChanges, OnDestroy {
       return `${weekStart.getDate()} ${weekStart.toLocaleDateString('pt-BR', { month: 'short' })} - ${weekEnd.getDate()} ${weekEnd.toLocaleDateString('pt-BR', { month: 'short' })}`;
     }
   }
-  // Private initialization methods
+
   private initializeComponent(): void {
     const now = new Date();
     this.currentDay = now.toISOString().split('T')[0];
@@ -335,10 +323,6 @@ export class WeekViewComponent implements OnInit, OnChanges, OnDestroy {
     );
   }
 
-  // private subscribeToStateChanges(): void {
-  //   // If using state service, subscribe to changes here
-  //   // For now, we'll use the component's local state
-  // }
 
   private handleInputChanges(changes: SimpleChanges): void {
     if (changes['events']) {
