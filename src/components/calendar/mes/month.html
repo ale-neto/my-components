@@ -1,0 +1,240 @@
+<!-- month-view.component.html -->
+<div
+  class="flex flex-col bg-white dark:bg-gray-900 rounded-lg shadow-lg overflow-hidden"
+>
+  <!-- Header com navegação -->
+  <div
+    class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700"
+  >
+    <div class="flex items-center gap-2">
+      <button
+        class="flex items-center justify-center p-2 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200"
+        (click)="goPreviousMonth()"
+        [attr.aria-label]="'Go to previous month'"
+        type="button"
+      >
+        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" />
+        </svg>
+      </button>
+
+      <button
+        class="px-3 py-2 text-sm font-medium rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200"
+        (click)="goCurrentMonth()"
+        [attr.aria-label]="'Go to current month'"
+        type="button"
+      >
+        Today
+      </button>
+
+      <button
+        class="flex items-center justify-center p-2 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200"
+        (click)="goNextMonth()"
+        [attr.aria-label]="'Go to next month'"
+        type="button"
+      >
+        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" />
+        </svg>
+      </button>
+    </div>
+
+    <div class="text-center">
+      <h2 class="text-xl font-semibold text-gray-900 dark:text-white">
+        {{ currentMonthYear.month }} {{ currentMonthYear.year }}
+      </h2>
+      <p
+        *ngIf="totalEventsThisMonth > 0"
+        class="text-xs text-blue-500 dark:text-blue-400 mt-1"
+      >
+        📊 {{ totalEventsThisMonth }} evento{{ totalEventsThisMonth > 1 ? 's' :
+        '' }} este mês
+      </p>
+      <p
+        *ngIf="totalEventsThisMonth === 0"
+        class="text-xs text-gray-500 dark:text-gray-400 mt-1"
+      >
+        📅 Nenhum evento este mês
+      </p>
+    </div>
+
+    <div class="w-32"></div>
+    <!-- Spacer para alinhamento -->
+  </div>
+
+  <!-- Header dos dias da semana -->
+  <div
+    class="grid grid-cols-7 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700"
+  >
+    <div
+      *ngFor="let dayName of daysOfWeek; let i = index"
+      class="px-2 py-3 text-center text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wide"
+      [class.text-red-500]="i === 0"
+      [class.dark:text-red-400]="i === 0"
+      [class.text-blue-500]="i === 6"
+      [class.dark:text-blue-400]="i === 6"
+    >
+      {{ dayName }}
+    </div>
+  </div>
+
+  <!-- Grade do calendário -->
+  <div class="flex-1">
+    <div
+      *ngFor="let week of weeksInMonth; trackBy: trackByWeek"
+      class="grid grid-cols-7 border-b border-gray-200 dark:border-gray-700 last:border-b-0"
+    >
+      <!-- Cada dia da semana -->
+      <div
+        *ngFor="let day of week.days; trackBy: trackByDay"
+        class="relative min-h-24 p-1 border-r border-gray-200 dark:border-gray-700 last:border-r-0 cursor-pointer transition-colors duration-200 group"
+        [class.bg-gray-50]="!day.isCurrentMonth"
+        [class.dark:bg-gray-800]="!day.isCurrentMonth"
+        [class.bg-blue-50]="day.isToday"
+        [class.dark:bg-blue-950]="day.isToday"
+        [class.bg-green-50]="isMarkedDay(day) && !day.isToday"
+        [class.dark:bg-green-950]="isMarkedDay(day) && !day.isToday"
+        [class.hover:bg-gray-100]="day.isCurrentMonth && !day.isToday && !isMarkedDay(day)"
+        [class.dark:hover:bg-gray-800]="day.isCurrentMonth && !day.isToday && !isMarkedDay(day)"
+        [attr.aria-label]="getDayAriaLabel(day)"
+        [attr.tabindex]="day.isCurrentMonth ? 0 : -1"
+        (click)="onDayClick(day)"
+        (keydown.enter)="onDayKeydown(day, $event)"
+        (keydown.space)="onDayKeydown(day, $event)"
+      >
+        <!-- Número do dia -->
+        <div class="flex items-center justify-between mb-1">
+          <span
+            class="text-sm font-medium"
+            [class.text-gray-400]="!day.isCurrentMonth"
+            [class.dark:text-gray-500]="!day.isCurrentMonth"
+            [class.text-gray-900]="day.isCurrentMonth && !day.isToday"
+            [class.dark:text-white]="day.isCurrentMonth && !day.isToday"
+            [class.text-blue-600]="day.isToday"
+            [class.dark:text-blue-400]="day.isToday"
+          >
+            {{ day.dayNumber }}
+          </span>
+
+          <!-- Indicador de hoje -->
+          <div
+            *ngIf="day.isToday"
+            class="w-2 h-2 bg-blue-500 rounded-full"
+          ></div>
+
+          <!-- Badge de contagem de eventos -->
+          <div
+            *ngIf="day.events.length > 0"
+            class="text-xs bg-blue-500 text-white rounded-full px-1.5 py-0.5 min-w-5 text-center"
+          >
+            {{ day.events.length }}
+          </div>
+        </div>
+
+        <!-- Lista de eventos -->
+        <div class="space-y-0.5 overflow-hidden">
+          <!-- Eventos visíveis -->
+          <div
+            *ngFor="let event of getVisibleEvents(day); trackBy: trackByEvent; let i = index"
+            class="text-xs rounded px-1.5 py-0.5 cursor-pointer hover:opacity-80 transition-opacity duration-200"
+            [ngStyle]="getEventStyle(event, i)"
+            [attr.aria-label]="getEventAriaLabel(event)"
+            [attr.tabindex]="0"
+            [attr.role]="'button'"
+            (click)="onEventClick(event, $event)"
+            (contextmenu)="onEventRightClick(event, $event)"
+            (keydown.enter)="onEventKeydown(event, $event)"
+            (keydown.space)="onEventKeydown(event, $event)"
+          >
+            <!-- Título do evento -->
+            <div class="truncate">{{ getEventDisplayTitle(event) }}</div>
+          </div>
+
+          <!-- Indicador de eventos ocultos -->
+          <div
+            *ngIf="hasHiddenEvents(day)"
+            class="text-xs text-gray-500 dark:text-gray-400 px-1.5 py-0.5 cursor-pointer hover:text-gray-700 dark:hover:text-gray-300"
+            (click)="onDayClick(day)"
+          >
+            +{{ getHiddenEventsCount(day) }} mais
+          </div>
+        </div>
+
+        <!-- Overlay para adicionar evento (aparece no hover em dias vazios) -->
+        <div
+          *ngIf="day.events.length === 0 && day.isCurrentMonth"
+          class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 bg-gray-50 dark:bg-gray-800 bg-opacity-50 transition-opacity duration-200 pointer-events-none"
+        >
+          <div
+            class="text-xs text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-700 px-2 py-1 rounded shadow-sm border border-gray-200 dark:border-gray-600"
+          >
+            + Adicionar evento
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Context Menu -->
+  <div
+    *ngIf="menuVisible && hasActions"
+    class="fixed bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 shadow-lg rounded-md py-1 z-50 min-w-32 max-w-48"
+    [ngStyle]="menuPosition"
+    role="menu"
+    [attr.aria-label]="'Actions for ' + selectedEvent?.title"
+  >
+    <button
+      *ngFor="let action of actions; trackBy: trackByAction"
+      class="w-full px-3 py-2 text-sm text-left text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 focus:bg-gray-100 dark:focus:bg-gray-700 focus:outline-none transition-colors duration-150"
+      (click)="executeAction(action.method)"
+      [attr.aria-label]="action.name"
+      role="menuitem"
+      type="button"
+    >
+      {{ action.name }}
+    </button>
+  </div>
+
+  <!-- Empty State (apenas se não há eventos no mês todo) -->
+  <div
+    *ngIf="!hasEvents"
+    class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-none z-10 text-center"
+  >
+    <div
+      class="bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm rounded-lg p-6 text-gray-400 dark:text-gray-500 shadow-sm"
+    >
+      <svg
+        class="w-16 h-16 mx-auto mb-3 opacity-50"
+        fill="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          d="M19,3H18V1H16V3H8V1H6V3H5A2,2 0 0,0 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5A2,2 0 0,0 19,3M19,19H5V8H19V19Z"
+        />
+      </svg>
+      <h3 class="text-base font-medium mb-1 opacity-60">
+        Nenhum evento agendado
+      </h3>
+      <p class="text-xs opacity-50">
+        Clique em um dia para adicionar seu primeiro evento
+      </p>
+    </div>
+  </div>
+
+  <!-- Loading overlay -->
+  <div
+    *ngIf="false"
+    class="absolute inset-0 bg-white dark:bg-gray-900 bg-opacity-75 flex items-center justify-center z-50"
+  >
+    <div class="text-center">
+      <div
+        class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 dark:border-blue-400"
+        role="status"
+        [attr.aria-label]="'Loading calendar'"
+      ></div>
+      <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+        Carregando calendário...
+      </p>
+    </div>
+  </div>
+</div>

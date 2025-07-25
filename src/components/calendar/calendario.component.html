@@ -1,34 +1,186 @@
-<div class="min-h-screen bg-gray-100 dark:bg-gray-900 p-4">
-  <div class="max-w mx-auto">
+<div class="p-6 max-w-7xl mx-auto">
+  <!-- Controles de visualização -->
+  <div class="mb-6">
+    <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+      📅 Calendário Completo
+    </h1>
 
-    <!-- Header simples -->
+    <!-- Toggle entre visualizações -->
+    <div class="flex items-center gap-4 mb-4">
+      <div class="flex bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
+        <button
+          [class.bg-white]="currentView === 'month'"
+          [class.shadow-sm]="currentView === 'month'"
+          [class.text-gray-900]="currentView === 'month'"
+          [class.text-gray-600]="currentView !== 'month'"
+          class="px-3 py-2 text-sm font-medium rounded-md transition-all duration-200"
+          (click)="setView('month')"
+        >
+          📅 Mês
+        </button>
+        <button
+          [class.bg-white]="currentView === 'week'"
+          [class.shadow-sm]="currentView === 'week'"
+          [class.text-gray-900]="currentView === 'week'"
+          [class.text-gray-600]="currentView !== 'week'"
+          class="px-3 py-2 text-sm font-medium rounded-md transition-all duration-200"
+          (click)="setView('week')"
+        >
+          📊 Semana
+        </button>
+      </div>
+
+      <!-- Configurações específicas por view -->
+      <div *ngIf="currentView === 'month'" class="flex items-center gap-2">
+        <label class="text-sm font-medium text-gray-700 dark:text-gray-300">
+          Eventos visíveis por dia:
+        </label>
+        <select
+          [(ngModel)]="maxVisibleEvents"
+          class="px-2 py-1 border border-gray-300 rounded text-sm"
+        >
+          <option [value]="2">2</option>
+          <option [value]="3">3</option>
+          <option [value]="4">4</option>
+          <option [value]="5">5</option>
+        </select>
+      </div>
+
+      <div *ngIf="currentView === 'week'" class="flex items-center gap-2">
+        <label class="text-sm font-medium text-gray-700 dark:text-gray-300">
+          Intervalo:
+        </label>
+        <select
+          [(ngModel)]="timeRange.interval"
+          class="px-2 py-1 border border-gray-300 rounded text-sm"
+        >
+          <option [value]="15">15 min</option>
+          <option [value]="30">30 min</option>
+          <option [value]="60">1 hora</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Estatísticas -->
+    <div class="flex gap-4 text-sm text-gray-600 dark:text-gray-400">
+      <span>📊 Total: {{ events.length }} eventos</span>
+      <span>📅 Este mês: {{ eventsThisMonth }} eventos</span>
+      <span>📈 Esta semana: {{ eventsThisWeek }} eventos</span>
+    </div>
+  </div>
+
+  <!-- Visualização Mensal -->
+  <div *ngIf="currentView === 'month'" class="mb-6">
+    <app-month-view
+      [events]="events"
+      [enableOnlyPeriodDate]="dateRange"
+      [actions]="eventActions"
+      [maxVisibleEvents]="maxVisibleEvents"
+      (clickAddEvent)="onAddEvent($event)"
+      (clickViewEvent)="onViewEvent($event)"
+      (monthChanged)="onMonthChanged($event)"
+      (dayClicked)="onDayClicked($event)"
+    >
+    </app-month-view>
+  </div>
+
+  <!-- Visualização Semanal -->
+  <div *ngIf="currentView === 'week'" class="mb-6">
+    <app-week-view
+      [events]="events"
+      [enableOnlyPeriodDate]="dateRange"
+      [enableOnlyPeriodTime]="timeRange"
+      [actions]="eventActions"
+      (clickAddEvent)="onAddEvent($event)"
+      (clickViewEvent)="onViewEvent($event)"
+      (monthChanged)="onMonthChanged($event)"
+    >
+    </app-week-view>
+  </div>
+
+  <!-- Modal de detalhes do evento -->
+  <div
+    *ngIf="showEventModal"
+    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+    (click)="closeEventModal()"
+  >
+    <div
+      class="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4"
+      (click)="$event.stopPropagation()"
+    >
+      <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
+        {{ modalData?.title || "Detalhes do Evento" }}
+      </h3>
+
+      <div class="space-y-3 text-sm text-gray-600 dark:text-gray-300">
+        <div *ngIf="modalData?.date">
+          <strong>📅 Data:</strong> {{ modalData.date | date : "dd/MM/yyyy" }}
+        </div>
+        <div *ngIf="modalData?.startTime">
+          <strong>⏰ Horário:</strong> {{ modalData.startTime }} -
+          {{ modalData.endTime }}
+        </div>
+        <div *ngIf="modalData?.description">
+          <strong>📝 Descrição:</strong> {{ modalData.description }}
+        </div>
+        <div *ngIf="modalData?.color">
+          <strong>🎨 Cor:</strong>
+          <span
+            class="inline-block w-4 h-4 rounded ml-2"
+            [style.backgroundColor]="modalData.color"
+          ></span>
+        </div>
+      </div>
+
+      <div class="flex gap-3 mt-6">
+        <button
+          class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm"
+          (click)="editEvent(modalData)"
+        >
+          ✏️ Editar
+        </button>
+        <button
+          class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 text-sm"
+          (click)="closeEventModal()"
+        >
+          ❌ Fechar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast de notificação -->
+  <div
+    *ngIf="showToast"
+    class="fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded-md shadow-lg z-50"
+  >
+    {{ toastMessage }}
+  </div>
+</div>
+
+<!-- <div class="min-h-screen bg-gray-100 dark:bg-gray-900 p-4">
+  <div class="max-w mx-auto">
     <div class="mb-6 text-center">
       <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-         Calendário Semanal
+        Calendário Semanal
       </h1>
       <p class="text-gray-600 dark:text-gray-400">
-        Clique em um horário para adicionar evento • Clique em um evento para visualizar
+        Clique em um horário para adicionar evento • Clique em um evento para
+        visualizar
       </p>
     </div>
 
-    <!-- Calendário -->
     <app-week-view
       [events]="events"
       [enableOnlyPeriodTime]="timeConfig"
       [actions]="eventActions"
       (clickAddEvent)="handleAddEvent($event)"
       (clickViewEvent)="handleViewEvent($event)"
-      (monthChanged)="handleMonthChange($event)">
+      (monthChanged)="handleMonthChange($event)"
+    >
     </app-week-view>
-
-    <!-- Mensagens de feedback -->
-    <!-- <div *ngIf="message"
-         class="mt-4 p-3 bg-blue-100 dark:bg-blue-900 border border-blue-300 dark:border-blue-700 rounded-md">
-      <p class="text-blue-800 dark:text-blue-200 text-sm">{{ message }}</p>
-    </div> -->
-
   </div>
-</div>
+</div> -->
 
 <!-- <app-header
   [viewMode]="viewMode"

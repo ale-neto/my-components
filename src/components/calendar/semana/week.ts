@@ -1,4 +1,3 @@
-// week-view.component.ts (Optimized version with existing interfaces)
 import {
   Component,
   EventEmitter,
@@ -13,9 +12,8 @@ import {
   HostListener,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject } from 'rxjs';
 
-// Import existing interfaces from your project
 import {
   ICalendarEvent,
   IDateRange,
@@ -25,16 +23,14 @@ import {
   IDayWithEvents
 } from '../interfaces';
 
-// Import our improved services
 import { CalendarUtilsService } from '../services/calendar-utils';
 import { DateUtilsService } from '../services/date-utils';
 import { EventStyleService } from '../services/event-style';
 import { WeekViewStateService } from '../services/week-view-state';
 
-// Constants
 const CALENDAR_CONSTANTS = {
   DAYS_IN_WEEK: 7,
-  HOUR_HEIGHT_PX: 48, // Changed to match Tailwind's h-12 (48px)
+  HOUR_HEIGHT_PX: 48,
   MINUTES_IN_HOUR: 60,
   MS_IN_DAY: 24 * 60 * 60 * 1000,
   DEFAULT_INTERVAL: 60,
@@ -42,19 +38,15 @@ const CALENDAR_CONSTANTS = {
   MAX_HOUR: 23,
 } as const;
 
-// Extended event interface for internal use
 interface ExtendedCalendarEvent extends ICalendarEvent {
   position?: number;
   totalOverlapped?: number;
 }
-
-// Menu position interface
 interface MenuPosition {
   top: string;
   left: string;
 }
 
-// Month change event interface
 interface MonthChangeEvent {
   month: string;
   year: number;
@@ -66,7 +58,7 @@ interface MonthChangeEvent {
   selector: 'app-week-view',
   templateUrl: './week.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [WeekViewStateService] // Provide state service at component level
+  providers: [WeekViewStateService]
 })
 export class WeekViewComponent implements OnInit, OnChanges, OnDestroy {
 
@@ -135,7 +127,6 @@ export class WeekViewComponent implements OnInit, OnChanges, OnDestroy {
 
   trackByAction = (index: number, action: ICalendarAction): string => action.name;
 
-  // Navigation methods (maintaining existing API)
   goPreviousWeek(): void {
     this.currentDate = new Date(this.currentDate.getTime() - (CALENDAR_CONSTANTS.DAYS_IN_WEEK * CALENDAR_CONSTANTS.MS_IN_DAY));
     this.configureDaysOfWeek();
