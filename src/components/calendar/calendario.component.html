@@ -135,7 +135,7 @@
       <div class="flex gap-3 mt-6">
         <button
           class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm"
-          (click)="editEvent(modalData)"
+          (click)="editEvent($event)"
         >
           ✏️ Editar
         </button>
@@ -157,71 +157,3 @@
     {{ toastMessage }}
   </div>
 </div>
-
-<!-- <div class="min-h-screen bg-gray-100 dark:bg-gray-900 p-4">
-  <div class="max-w mx-auto">
-    <div class="mb-6 text-center">
-      <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-        Calendário Semanal
-      </h1>
-      <p class="text-gray-600 dark:text-gray-400">
-        Clique em um horário para adicionar evento • Clique em um evento para
-        visualizar
-      </p>
-    </div>
-
-    <app-week-view
-      [events]="events"
-      [enableOnlyPeriodTime]="timeConfig"
-      [actions]="eventActions"
-      (clickAddEvent)="handleAddEvent($event)"
-      (clickViewEvent)="handleViewEvent($event)"
-      (monthChanged)="handleMonthChange($event)"
-    >
-    </app-week-view>
-  </div>
-</div> -->
-
-<!-- <app-header
-  [viewMode]="viewMode"
-  [mesAtual]="mesAtual"
-  [anoAtual]="anoAtual"
-  (changeView)="mudarVisao($event)"
-  (previous)="viewMode === 'semana' ? goToPreviousWeek() : goToPreviousMonth()"
-  (current)="viewMode === 'semana' ? goToCurrentWeek() : goToCurrentMonth()"
-  (next)="viewMode === 'semana' ? goToNextWeek() : goToNextMonth()"
->
-</app-header> -->
-<!-- <ng-container *ngIf="viewMode === 'semana'">
-  <app-week-view
-    #semanaComponent
-    [events]="eventos"
-
-  >
-  </app-week-view>
-</ng-container> -->
-
-<!-- [mesAtual]="mesAtual"
-    [anoAtual]="anoAtual"
-    [desabilitarAdicionarEvento]="desabilitarAdicionarEvento"
-    [desabilitarIrParaProximoMes]="desabilitarIrParaProximoMes"
-    [desabilitarIrParaMesAnterior]="desabilitarIrParaMesAnterior" -->
-<!-- <ng-container *ngIf="viewMode === 'mes'">
-  <app-visualizacao-mensal
-    #mesComponent
-    [eventos]="eventos"
-    [dataInicial]="periodoMarcadoParaEventos?.dataInicial"
-    [desabilitarAdicionarEvento]="desabilitarAdicionarEvento"
-    [desabilitarIrParaProximoMes]="desabilitarIrParaProximoMes"
-    [desabilitarIrParaMesAnterior]="desabilitarIrParaMesAnterior"
-    [acoesEvento]="acoesEvento"
-    [periodoMarcadoParaEventos]="periodoMarcadoParaEventos"
-    (cliqueAdicionarEvento)="cliqueAdicionarEvento.next($event)"
-    (cliqueVisualizarEvento)="cliqueVisualizarEvento.next($event)"
-    (mesMudou)="atualizarMes($event)"
-  ></app-visualizacao-mensal>
-</ng-container> -->
-
-<!--
-[mesAtual]="mesAtual"
-[anoAtual]="anoAtual" -->
