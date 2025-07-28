@@ -156,6 +156,51 @@ export class HomeComponent {
     },
   ];
 
+  showEventModal: boolean = false;
+  showToast: boolean = false;
+  toastMessage: string = '';
+  modalData: any = null;
+
+  private addHoursToTime(time: string, hours: number): string {
+    const [h, m] = time.split(':').map((n) => parseInt(n, 10));
+    const newHour = (h + hours) % 24;
+    return `${newHour.toString().padStart(2, '0')}:${m
+      .toString()
+      .padStart(2, '0')}`;
+  }
+
+  private getRandomColor(): string {
+    const colors = [
+      '#3b82f6',
+      '#ef4444',
+      '#10b981',
+      '#f59e0b',
+      '#8b5cf6',
+      '#ec4899',
+      '#06b6d4',
+      '#84cc16',
+    ];
+    return colors[Math.floor(Math.random() * colors.length)];
+  }
+
+  private showToastMessage(message: string): void {
+    this.toastMessage = message;
+    this.showToast = true;
+    setTimeout(() => {
+      this.showToast = false;
+    }, 3000);
+  }
+
+  onViewEvent(event: ICalendarEvent): void {
+    console.log('Visualizando evento:', event);
+    this.modalData = event;
+    this.showEventModal = true;
+  }
+
+  viewEventDetails(event: ICalendarEvent): void {
+    this.onViewEvent(event);
+  }
+
   editEvent(event: any): void {
     console.log('Editando evento:', event);
     this.modalData = event;
