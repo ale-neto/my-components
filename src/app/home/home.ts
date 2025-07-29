@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { ANCalendarioModule } from 'src/components/calendar';
+import { EventModalComponent } from 'src/components/event-modal/event-modal';
 import {
   ICalendarAction,
   ICalendarEvent,
@@ -7,7 +8,7 @@ import {
 
 @Component({
   selector: 'app-home',
-  imports: [ANCalendarioModule],
+  imports: [ANCalendarioModule, EventModalComponent],
   templateUrl: './home.html',
   styleUrl: './home.scss',
 })
@@ -245,5 +246,10 @@ export class HomeComponent {
       this.events = this.events.filter((e) => e.id !== event.id);
       this.showToastMessage('❌ Evento excluído!');
     }
+  }
+
+  closeEventModal() {
+    this.showEventModal = false;
+    this.modalData = null;
   }
 }

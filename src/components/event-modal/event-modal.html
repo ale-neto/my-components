@@ -1,0 +1,49 @@
+<div
+  *ngIf="show"
+  class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+  (click)="closeEventModal()"
+>
+  <div
+    class="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4"
+    (click)="stopPropagation($event)"
+  >
+    <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
+      {{ modalData?.title || "Detalhes do Evento" }}
+    </h3>
+
+    <div class="space-y-3 text-sm text-gray-600 dark:text-gray-300">
+      <div *ngIf="modalData?.date">
+        <strong>📅 Data:</strong> {{ modalData.date | date : "dd/MM/yyyy" }}
+      </div>
+      <div *ngIf="modalData?.startTime">
+        <strong>⏰ Horário:</strong> {{ modalData.startTime }} - {{
+        modalData.endTime }}
+      </div>
+      <div *ngIf="modalData?.description">
+        <strong>📝 Descrição:</strong> {{ modalData.description }}
+      </div>
+      <div *ngIf="modalData?.color">
+        <strong>🎨 Cor:</strong>
+        <span
+          class="inline-block w-4 h-4 rounded ml-2"
+          [style.backgroundColor]="modalData.color"
+        ></span>
+      </div>
+    </div>
+
+    <div class="flex gap-3 mt-6">
+      <button
+        class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm"
+        (click)="editEvent($event)"
+      >
+        ✏️ Editar
+      </button>
+      <button
+        class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 text-sm"
+        (click)="closeEventModal()"
+      >
+        ❌ Fechar
+      </button>
+    </div>
+  </div>
+</div>
