@@ -192,7 +192,24 @@ export class HomeComponent {
     }, 3000);
   }
 
-  onViewEvent(event: ICalendarEvent): void {
+  onAddEvent(eventData: any): void {
+    console.log('Adicionando evento:', eventData);
+
+    const newEvent: ICalendarEvent = {
+      id: Date.now().toString(),
+      title: 'Novo Evento',
+      date: eventData.date.toISOString().split('T')[0],
+      startTime: eventData.startTime,
+      endTime: this.addHoursToTime(eventData.startTime, 1),
+      color: this.getRandomColor(),
+      description: 'Clique para editar este evento',
+    };
+
+    this.events = [...this.events, newEvent];
+    this.showToastMessage('✅ Evento criado com sucesso!');
+  }
+
+  onViewEvent(event: any): void {
     console.log('Visualizando evento:', event);
     this.modalData = event;
     this.showEventModal = true;
