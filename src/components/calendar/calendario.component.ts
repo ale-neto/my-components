@@ -1,4 +1,10 @@
-import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  EventEmitter,
+  Input,
+  Output,
+} from '@angular/core';
 import {
   IAddEventData,
   ICalendarAction,
@@ -15,23 +21,22 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CalendarioComponent {
-  currentView: 'month' | 'week' = 'month';
-  maxVisibleEvents: number = 3;
-
   @Input() timeRange: ITimeRange = {
     startTime: 9,
     endTime: 17,
     interval: 30,
   };
-
   @Input() dateRange: IDateRange = {
     startDate: '2025-07-01',
     endDate: '2025-07-31',
   };
-
   @Input() events: ICalendarEvent[] = [];
-
   @Input() eventActions: ICalendarAction[] = [];
+  @Output() addEvent = new EventEmitter<IAddEventData>();
+  @Output() viewEvent = new EventEmitter<ICalendarEvent>();
+  currentView: 'month' | 'week' = 'month';
+  maxVisibleEvents: number = 3;
+
   showEventModal: boolean = false;
   showToast: boolean = false;
   toastMessage: string = '';
@@ -98,26 +103,11 @@ export class CalendarioComponent {
   }
 
   onAddEvent(eventData: IAddEventData): void {
-    console.log('Adicionando evento:', eventData);
-
-    const newEvent: ICalendarEvent = {
-      id: Date.now().toString(),
-      title: 'Novo Evento',
-      date: eventData.date.toISOString().split('T')[0],
-      startTime: eventData.startTime,
-      endTime: this.addHoursToTime(eventData.startTime, 1),
-      color: this.getRandomColor(),
-      description: 'Clique para editar este evento',
-    };
-
-    this.events = [...this.events, newEvent];
-    this.showToastMessage('✅ Evento criado com sucesso!');
+    this.addEvent.emit(eventData);
   }
 
   onViewEvent(event: ICalendarEvent): void {
-    console.log('Visualizando evento:', event);
-    this.modalData = event;
-    this.showEventModal = true;
+    this.viewEvent.emit(event);
   }
 
   onMonthChanged(monthData: { month: string; year: number }): void {
