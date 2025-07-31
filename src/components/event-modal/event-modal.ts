@@ -2,12 +2,12 @@ import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 export interface ModalData {
-  title?: string;
-  date?: Date | string;
-  startTime?: string;
-  endTime?: string;
-  description?: string;
-  color?: string;
+  title?: string | null;
+  date?: Date | string | null;
+  startTime?: string | null;
+  endTime?: string | null;
+  description?: string | null;
+  color?: string | null;
 }
 
 @Component({
