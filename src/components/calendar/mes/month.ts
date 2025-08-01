@@ -67,13 +67,11 @@ interface MenuPosition {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MonthViewComponent implements OnInit, OnChanges, OnDestroy {
-  // Inputs (compatíveis com WeekView)
   @Input() events: ICalendarEvent[] = [];
   @Input() enableOnlyPeriodDate?: IDateRange;
   @Input() actions: ICalendarAction[] = [];
   @Input() maxVisibleEvents: number = MONTH_CONSTANTS.MAX_VISIBLE_EVENTS;
 
-  // Outputs (compatíveis com WeekView)
   @Output() clickAddEvent = new EventEmitter<IAddEventData>();
   @Output() clickViewEvent = new EventEmitter<ICalendarEvent>();
   @Output() monthChanged = new EventEmitter<MonthChangeEvent>();
