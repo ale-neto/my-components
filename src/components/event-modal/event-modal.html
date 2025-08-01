@@ -8,21 +8,21 @@
     (click)="stopPropagation($event)"
   >
     <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
-      {{ modalData?.title || "Detalhes do Evento" }}
+      {{ modalData.title || "Detalhes do Evento" }}
     </h3>
 
     <div class="space-y-3 text-sm text-gray-600 dark:text-gray-300">
-      <div *ngIf="modalData?.date">
+      <div *ngIf="modalData.date">
         <strong>📅 Data:</strong> {{ modalData.date | date : "dd/MM/yyyy" }}
       </div>
-      <div *ngIf="modalData?.startTime">
+      <div *ngIf="modalData.startTime">
         <strong>⏰ Horário:</strong> {{ modalData.startTime }} - {{
         modalData.endTime }}
       </div>
-      <div *ngIf="modalData?.description">
+      <div *ngIf="modalData.description">
         <strong>📝 Descrição:</strong> {{ modalData.description }}
       </div>
-      <div *ngIf="modalData?.color">
+      <div *ngIf="modalData.color">
         <strong>🎨 Cor:</strong>
         <span
           class="inline-block w-4 h-4 rounded ml-2"
