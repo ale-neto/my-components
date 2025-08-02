@@ -107,8 +107,7 @@ export class CalendarioComponent {
   }
 
   onViewEvent(event: ICalendarEvent): void {
-    console.log('Visualizando evento:', event);
-    this.viewEvent.next(event);
+    this.viewEvent.emit(event);
   }
 
   onMonthChanged(monthData: { month: string; year: number }): void {
