@@ -1,9 +1,12 @@
-<app-calendar [events]="events" [eventActions]="eventActions"></app-calendar>
+<app-calendar
+  [events]="events"
+  [eventActions]="eventActions"
+  (viewEvent)="onViewEvent($event)"
+  (addEvent)="onAddEvent($event)"
+></app-calendar>
 <app-event-modal
   [show]="showEventModal"
   [modalData]="modalData"
   (close)="closeEventModal()"
   (edit)="editEvent($event)"
-  (addEvent)="onAddEvent($event)"
-  (viewEvent)="onViewEvent($event)"
 ></app-event-modal>

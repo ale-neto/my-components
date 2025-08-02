@@ -210,7 +210,6 @@ export class HomeComponent {
   }
 
   onViewEvent(event: any): void {
-    console.log('Visualizando evento:', event);
     this.modalData = event;
     this.showEventModal = true;
   }
