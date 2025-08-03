@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { ANCalendarioModule } from 'src/components/calendar';
 import { EventModalComponent } from 'src/components/event-modal/event-modal';
+import { ToastComponent } from 'src/components/toast/toast';
 import {
   ICalendarAction,
   ICalendarEvent,
@@ -8,7 +9,7 @@ import {
 
 @Component({
   selector: 'app-home',
-  imports: [ANCalendarioModule, EventModalComponent],
+  imports: [ANCalendarioModule, EventModalComponent, ToastComponent],
   templateUrl: './home.html',
   styleUrl: './home.scss',
 })
@@ -212,10 +213,12 @@ export class HomeComponent {
   onViewEvent(event: any): void {
     this.modalData = event;
     this.showEventModal = true;
+    this.showToastMessage('👁️ Abrindo visualização...');
   }
 
   viewEventDetails(event: ICalendarEvent): void {
     this.onViewEvent(event);
+    this.showToastMessage('👁️ Abrindo visualização...');
   }
 
   editEvent(event: any): void {
