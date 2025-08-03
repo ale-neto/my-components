@@ -8,42 +8,88 @@
     (click)="stopPropagation($event)"
   >
     <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
-      {{ modalData.title || "Detalhes do Evento" }}
+      {{ type === "add" ? "Novo Evento" : type === "edit" ? "Editar Evento" :
+      "Detalhes do Evento" }}
     </h3>
 
-    <div class="space-y-3 text-sm text-gray-600 dark:text-gray-300">
-      <div *ngIf="modalData.date">
-        <strong>📅 Data:</strong> {{ modalData.date | date : "dd/MM/yyyy" }}
+    <form [formGroup]="form" (ngSubmit)="saveEvent()">
+      <div class="space-y-3 text-sm text-gray-600 dark:text-gray-300">
+        <div *ngIf="modalData.date">
+          <strong>📅 Data:</strong>
+          <input
+            *ngIf="type === 'edit'"
+            type="date"
+            formControlName="date"
+            class="border border-gray-300 rounded-md px-2 py-1 w-full"
+          />
+          <span *ngIf="type !== 'edit'"
+            >{{ modalData.date | date : "dd/MM/yyyy" }}</span
+          >
+        </div>
+        <div *ngIf="modalData.startTime">
+          <strong>⏰ Horário:</strong>
+          <input
+            *ngIf="type === 'edit'"
+            type="time"
+            formControlName="startTime"
+            class="border border-gray-300 rounded-md px-2 py-1 w-full"
+          />
+          <span *ngIf="type !== 'edit'">{{ modalData.startTime }}</span>
+          -
+          <input
+            *ngIf="type === 'edit'"
+            type="time"
+            formControlName="endTime"
+            class="border border-gray-300 rounded-md px-2 py-1 w-full"
+          />
+          <span *ngIf="type !== 'edit'">{{ modalData.endTime }}</span>
+        </div>
+        <div *ngIf="modalData.description">
+          <strong>📝 Descrição:</strong>
+          <textarea
+            *ngIf="type === 'edit'"
+            formControlName="description"
+            class="border border-gray-300 rounded-md px-2 py-1 w-full"
+          ></textarea>
+          <span *ngIf="type !== 'edit'">{{ modalData.description }}</span>
+        </div>
+        <div *ngIf="modalData.color">
+          <strong>🎨 Cor:</strong>
+          <input
+            *ngIf="type === 'edit'"
+            type="color"
+            formControlName="color"
+            class="border border-gray-300 rounded-md px-2 py-1 w-full"
+          />
+          <span
+            *ngIf="type !== 'edit'"
+            class="inline-block w-4 h-4 rounded ml-2"
+            [style.backgroundColor]="modalData.color"
+          ></span>
+        </div>
       </div>
-      <div *ngIf="modalData.startTime">
-        <strong>⏰ Horário:</strong> {{ modalData.startTime }} - {{
-        modalData.endTime }}
-      </div>
-      <div *ngIf="modalData.description">
-        <strong>📝 Descrição:</strong> {{ modalData.description }}
-      </div>
-      <div *ngIf="modalData.color">
-        <strong>🎨 Cor:</strong>
-        <span
-          class="inline-block w-4 h-4 rounded ml-2"
-          [style.backgroundColor]="modalData.color"
-        ></span>
-      </div>
-    </div>
 
-    <div class="flex gap-3 mt-6">
-      <button
-        class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm"
-        (click)="editEvent($event)"
-      >
-        ✏️ Editar
-      </button>
-      <button
-        class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 text-sm"
-        (click)="closeEventModal()"
-      >
-        ❌ Fechar
-      </button>
-    </div>
+      <div class="flex gap-3 mt-6">
+        <button
+          *ngIf="type !== 'view'"
+          class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm"
+          type="submit"
+        >
+          📝 Salvar
+        </button>
+        <button
+          class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm"
+          (click)="editEvent()"
+        >
+          ✏️ Editar
+        </button>
+        <button
+          class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 text-sm"
+          (click)="closeEventModal()"
+        >
+          ❌ Fechar
+        </button>
+      </div>
+    </form>
   </div>
 </div>
